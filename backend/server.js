@@ -43,6 +43,24 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.get('/api/health', async (req, res) => {
+  const configuration = {
+    database: Boolean(process.env.DATABASE_URL),
+    jwt: Boolean(process.env.JWT_SECRET),
+    cloudinary: Boolean(
+      process.env.CLOUDINARY_CLOUD_NAME &&
+      process.env.CLOUDINARY_API_KEY &&
+      process.env.CLOUDINARY_API_SECRET
+    )
+  };
+
+  if (!configuration.database || !configuration.jwt) {
+    return res.status(503).json({
+      status: 'error',
+      message: 'Required production configuration is missing.',
+      configuration
+    });
+  }
+
   try {
     const result = await db.query('SELECT NOW() AS current_time');
     return res.json({
@@ -69,7 +87,10 @@ app.use('/api/users', require('./routes/users.routes'));
 
 app.use((err, req, res, next) => {
   console.error('Server error:', err.stack);
-  res.status(500).json({ message: err.message || 'Internal Server Error' });
+  res.status(500).json({
+    message: 'Internal Server Error',
+    ...(process.env.NODE_ENV !== 'production' ? { detail: err.message } : {})
+  });
 });
 
 const startServer = (port) => {
