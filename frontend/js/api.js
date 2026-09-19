@@ -1,10 +1,5 @@
 /* YouthSphere API Client Helper */
 
-const HOSTNAME = window.location.hostname || 'localhost';
-const DEV_API_PORTS = [5001];
-const isLocalDevelopment = ['localhost', '127.0.0.1', '0.0.0.0'].includes(HOSTNAME);
-const configuredApiBase = window.YOUTHSPHERE_API_URL || '';
-
 const api = {
   getToken() {
     return localStorage.getItem('youthsphere_token');
@@ -45,33 +40,14 @@ const api = {
       headers
     };
 
-    let lastError = null;
-    const apiUrls = configuredApiBase
-      ? [`${configuredApiBase.replace(/\/$/, '')}/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`]
-      : isLocalDevelopment
-      ? DEV_API_PORTS.map((port) => `http://${HOSTNAME}:${port}/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`)
-      : [`/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`];
+    const url = `/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    const response = await fetch(url, config);
+    const data = await response.json().catch(() => ({}));
 
-    for (const url of apiUrls) {
-      try {
-        const response = await fetch(url, config);
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok) {
-          const requestError = new Error(data.message || `Request failed with status ${response.status}.`);
-          requestError.isApiResponse = true;
-          throw requestError;
-        }
-
-        return data;
-      } catch (error) {
-        lastError = error;
-        if (error.isApiResponse) {
-          break;
-        }
-      }
+    if (!response.ok) {
+      throw new Error(data.message || `Request failed with status ${response.status}.`);
     }
 
-    throw lastError || new Error('Unable to reach the YouthSphere API.');
+    return data;
   }
 };

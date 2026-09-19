@@ -13,25 +13,17 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   process.env.FRONTEND_URL,
   process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
-  process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`,
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
-  'http://localhost:5500',
-  'http://127.0.0.1:5500',
-  'http://localhost:5501',
-  'http://127.0.0.1:5501',
-  'http://localhost:8080',
-  'http://127.0.0.1:8080'
+  process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$/.test(origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
       return;
     }
 
-    callback(new Error('CORS policy: origin not allowed for local debugging'));
+    callback(new Error('CORS policy: origin not allowed'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -81,19 +73,8 @@ app.use((err, req, res, next) => {
 });
 
 const startServer = (port) => {
-  const server = app.listen(port, '0.0.0.0', () => {
-    console.log(`YouthSphere API running on http://localhost:${port}`);
-  });
-
-  server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      const fallbackPort = port + 1;
-      console.warn(`Port ${port} is busy. Retrying on ${fallbackPort}...`);
-      startServer(fallbackPort);
-      return;
-    }
-
-    throw err;
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`YouthSphere API running on port ${port}`);
   });
 };
 
