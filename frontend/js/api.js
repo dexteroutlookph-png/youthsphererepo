@@ -15,6 +15,12 @@ const api = {
     localStorage.removeItem('youthsphere_user');
   },
 
+  async logout() {
+    const token = this.getToken();
+    if (token) await this.request('/auth/logout', { method: 'POST' }).catch(() => {});
+    this.clearSession();
+  },
+
   getCurrentUser() {
     const userStr = localStorage.getItem('youthsphere_user');
     try {

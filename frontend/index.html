@@ -21,10 +21,11 @@
     </div>
 
     <nav class="desktop-nav">
-      <a href="index.html" class="nav-link active">Home</a>
-      <a href="announcements.html" class="nav-link">Announcements</a>
-      <a href="rewards.html" class="nav-link">Reward Card</a>
-      <a href="profile.html" class="nav-link">Profile</a>
+      <a href="/" class="nav-link active">Home</a>
+      <a href="/announcements" class="nav-link">Announcements</a>
+      <a href="/rewards" class="nav-link">Reward Card</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/notifications" class="nav-link">Notifications</a>
       <button id="logoutBtn" class="btn btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3); padding: 6px 12px; font-size: 13px;">Logout</button>
     </nav>
   </header>
@@ -53,10 +54,10 @@
   <!-- Mobile Bottom Navigation -->
   <nav class="mobile-nav">
     <ul class="mobile-nav-list">
-      <li><a href="index.html" class="mobile-nav-link active">Home</a></li>
-      <li><a href="announcements.html" class="mobile-nav-link">Announcements</a></li>
-      <li><a href="rewards.html" class="mobile-nav-link">Card</a></li>
-      <li><a href="profile.html" class="mobile-nav-link">Profile</a></li>
+      <li><a href="/" class="mobile-nav-link active">Home</a></li>
+      <li><a href="/announcements" class="mobile-nav-link">Announcements</a></li>
+      <li><a href="/rewards" class="mobile-nav-link">Card</a></li>
+      <li><a href="/profile" class="mobile-nav-link">Profile</a></li>
     </ul>
   </nav>
 
@@ -75,11 +76,12 @@
 
           <div class="form-group">
             <label class="form-label">Attach Image (Optional)</label>
-            <input type="file" id="postImageInput" accept="image/*" class="form-control">
+            <input type="file" id="postImageInput" accept="image/*,video/mp4,video/webm,video/quicktime" class="form-control">
           </div>
 
           <div id="postImagePreviewContainer" style="display: none; margin-top: 10px; text-align: center;">
             <img id="postImagePreview" src="" alt="Post Attachment Preview" style="max-width: 100%; max-height: 200px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <video id="postVideoPreview" controls style="display:none; max-width:100%; max-height:200px; border-radius:var(--radius-md);" aria-label="Post video preview"></video>
             <button type="button" id="removeImageBtn" class="btn btn-outline" style="font-size: 11px; margin-top: 6px; padding: 4px 8px;">Remove Photo</button>
           </div>
         </div>

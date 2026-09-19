@@ -9,12 +9,18 @@ const db = require('./connection');
 const runMigrations = async () => {
   logger.info('[2/3] Connecting to Neon PostgreSQL cloud database...');
   try {
-    const migrationFilePath = path.join(__dirname, 'migrations', '001_initial_schema.sql');
-    const sql = fs.readFileSync(migrationFilePath, 'utf8');
-    
-    logger.info('[3/3] Executing database table creation queries...');
-    await db.query(sql);
-    logger.info('SUCCESS: All 15 database tables created successfully!');
+    const migrationDirectory = path.join(__dirname, 'migrations');
+    const migrationFiles = fs.readdirSync(migrationDirectory)
+      .filter((file) => /^\d+_.+\.sql$/.test(file))
+      .sort();
+
+    logger.info(`[3/3] Executing ${migrationFiles.length} database migrations...`);
+    for (const migrationFile of migrationFiles) {
+      const sql = fs.readFileSync(path.join(migrationDirectory, migrationFile), 'utf8');
+      await db.query(sql);
+      logger.info(`Applied migration ${migrationFile}`);
+    }
+    logger.info('SUCCESS: Database migrations completed successfully!');
     process.exit(0);
   } catch (error) {
     logger.error('Migration failed with error:', error.message);

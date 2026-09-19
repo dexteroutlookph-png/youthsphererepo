@@ -311,6 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
         username,
         email,
         password,
+        termsAccepted,
         avatarBase64: croppedBase64 || null
       };
 
@@ -321,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       showAlert('Registration successful! Redirecting to login...', 'success');
       setTimeout(() => {
-        window.location.href = 'login.html';
+        window.location.href = '/login';
       }, 1200);
 
     } catch (err) {

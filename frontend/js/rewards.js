@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Session Check
   const currentUser = api.getCurrentUser();
   if (!api.getToken() || !currentUser) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const totalPointsDisplay = document.getElementById('totalPointsDisplay');
   const cardUidDisplay = document.getElementById('cardUidDisplay');
   const historyContainer = document.getElementById('historyContainer');
+  const linkCardPanel = document.getElementById('linkCardPanel');
+  const linkCardForm = document.getElementById('linkCardForm');
+  const linkCardAlert = document.getElementById('linkCardAlert');
 
   // Modal Handles
   const showQrBtn = document.getElementById('showQrBtn');
@@ -27,9 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Logout Handler
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      api.clearSession();
-      window.location.href = 'login.html';
+    logoutBtn.addEventListener('click', async () => {
+      await api.logout();
+      window.location.href = '/login';
     });
   }
 
@@ -46,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderStampGrid(data.stamps_count || 0);
       renderStats(data.stamps_count || 0, data.total_points || 0);
       renderHistory(data.history || []);
+      if (data.card_status && data.card_status !== 'unlinked') linkCardPanel.style.display = 'none';
     } catch (err) {
       // Fallback UI gracefully if endpoint returns initial default state
       renderStampGrid(0);
@@ -53,6 +57,18 @@ document.addEventListener('DOMContentLoaded', () => {
       renderHistory([]);
     }
   };
+
+  linkCardForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const button = document.getElementById('linkCardBtn');
+    button.disabled = true; button.textContent = 'Verifying...';
+    try {
+      await api.request('/rewards/link', { method: 'POST', body: JSON.stringify({ cardNumber: document.getElementById('cardNumberInput').value.trim() }) });
+      linkCardAlert.style.display = 'block'; linkCardAlert.textContent = 'Card linked successfully.'; linkCardAlert.style.color = '#03543F'; linkCardForm.reset(); linkCardPanel.style.display = 'none'; loadRewardCardData();
+    } catch (error) {
+      linkCardAlert.style.display = 'block'; linkCardAlert.textContent = error.message || 'Unable to link card.'; linkCardAlert.style.color = '#9B1C1C';
+    } finally { button.disabled = false; button.textContent = 'Verify & Link Card'; }
+  });
 
   // Render 10-Slot Stamp Grid
   const renderStampGrid = (stampCount) => {

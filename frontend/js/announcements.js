@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Session Check
   const currentUser = api.getCurrentUser();
   if (!api.getToken() || !currentUser) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -18,9 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Logout Handler
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      api.clearSession();
-      window.location.href = 'login.html';
+    logoutBtn.addEventListener('click', async () => {
+      await api.logout();
+      window.location.href = '/login';
     });
   }
 

@@ -21,10 +21,11 @@
     </div>
 
     <nav class="desktop-nav">
-      <a href="index.html" class="nav-link">Home</a>
-      <a href="announcements.html" class="nav-link">Announcements</a>
-      <a href="rewards.html" class="nav-link active">Reward Card</a>
-      <a href="profile.html" class="nav-link">Profile</a>
+      <a href="/" class="nav-link">Home</a>
+      <a href="/announcements" class="nav-link">Announcements</a>
+      <a href="/rewards" class="nav-link active">Reward Card</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/notifications" class="nav-link">Notifications</a>
       <button id="logoutBtn" class="btn btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3); padding: 6px 12px; font-size: 13px;">Logout</button>
     </nav>
   </header>
@@ -34,6 +35,17 @@
     <div style="margin-bottom: 20px;">
       <h2 style="color: var(--primary-navy); margin-bottom: 4px;">Digital Attendance Card</h2>
       <p style="color: var(--text-secondary); font-size: 14px;">Earn stamps for every ISIED Sunday service, cluster gathering, and district event you attend!</p>
+    </div>
+
+    <div id="linkCardPanel" class="post-card" style="padding: 20px; margin-bottom: 24px;">
+      <h3 style="color: var(--primary-navy); font-size: 16px; margin-bottom: 8px;">Link Existing Reward Card</h3>
+      <p style="color: var(--text-secondary); font-size: 13px;">Enter the number printed on your physical card. The backend verifies it against the district card registry.</p>
+      <form id="linkCardForm" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <label for="cardNumberInput" class="sr-only">Physical reward card number</label>
+        <input id="cardNumberInput" class="form-control" style="flex:1; min-width:220px;" autocomplete="off" required>
+        <button type="submit" id="linkCardBtn" class="btn btn-primary">Verify &amp; Link Card</button>
+      </form>
+      <div id="linkCardAlert" role="status" aria-live="polite" style="display:none; margin-top:10px; font-size:13px;"></div>
     </div>
 
     <!-- Virtual Reward Card Visual -->
@@ -91,10 +103,10 @@
   <!-- Mobile Bottom Navigation -->
   <nav class="mobile-nav">
     <ul class="mobile-nav-list">
-      <li><a href="index.html" class="mobile-nav-link">Home</a></li>
-      <li><a href="announcements.html" class="mobile-nav-link">Announcements</a></li>
-      <li><a href="rewards.html" class="mobile-nav-link active">Card</a></li>
-      <li><a href="profile.html" class="mobile-nav-link">Profile</a></li>
+      <li><a href="/" class="mobile-nav-link">Home</a></li>
+      <li><a href="/announcements" class="mobile-nav-link">Announcements</a></li>
+      <li><a href="/rewards" class="mobile-nav-link active">Card</a></li>
+      <li><a href="/profile" class="mobile-nav-link">Profile</a></li>
     </ul>
   </nav>
 

@@ -3,7 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Redirect immediately if session token already exists
   if (api.getToken() && api.getCurrentUser()) {
-    window.location.href = 'index.html';
+    window.location.href = '/';
     return;
   }
 
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showAlert('Login successful! Redirecting...', 'success');
         
         setTimeout(() => {
-          window.location.href = 'index.html';
+          window.location.href = '/';
         }, 800);
       } else {
         throw new Error('Invalid response received from server.');

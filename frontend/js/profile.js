@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Session Check
   const currentUser = api.getCurrentUser();
   if (!api.getToken() || !currentUser) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Profile Edit Form Elements
   const profileDetailsForm = document.getElementById('profileDetailsForm');
   const editFirstName = document.getElementById('editFirstName');
+  const editMiddleName = document.getElementById('editMiddleName');
   const editLastName = document.getElementById('editLastName');
   const editEmail = document.getElementById('editEmail');
   const editBirthday = document.getElementById('editBirthday');
@@ -39,9 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Logout Event
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      api.clearSession();
-      window.location.href = 'login.html';
+    logoutBtn.addEventListener('click', async () => {
+      await api.logout();
+      window.location.href = '/login';
     });
   }
 
@@ -75,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     profileClusterBadge.textContent = user.clusterName || 'ISIED Cluster';
 
     editFirstName.value = user.firstName || '';
+    editMiddleName.value = user.middleName || '';
     editLastName.value = user.lastName || '';
     editEmail.value = user.email || '';
     editBio.value = user.bio || '';
@@ -136,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const firstName = editFirstName.value.trim();
     const lastName = editLastName.value.trim();
+    const middleName = editMiddleName.value.trim();
     const email = editEmail.value.trim();
     const bio = editBio.value.trim();
 
@@ -150,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const updatedUser = await api.request('/users/profile', {
         method: 'PUT',
-        body: JSON.stringify({ firstName, lastName, email, bio })
+        body: JSON.stringify({ firstName, middleName, lastName, email, bio })
       });
 
       api.setSession(api.getToken(), updatedUser);

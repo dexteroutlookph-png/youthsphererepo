@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const db = require('../database/connection');
 const { requireAuth } = require('../middleware/auth');
 const { uploadBase64 } = require('../config/cloudinary');
+const { requireRole } = require('../middleware/roles');
 
 const router = express.Router();
 
@@ -56,7 +57,7 @@ router.get('/profile', requireAuth, async (req, res) => {
 });
 
 router.put('/profile', requireAuth, async (req, res) => {
-  const { firstName, lastName, email, bio } = req.body || {};
+  const { firstName, middleName, lastName, email, bio } = req.body || {};
 
   if (!firstName || !lastName || !email) {
     return res.status(400).json({ message: 'First name, last name, and email are required.' });
@@ -69,9 +70,9 @@ router.put('/profile', requireAuth, async (req, res) => {
     }
 
     await db.query(
-      `UPDATE users SET first_name = $1, last_name = $2, email = $3, bio = $4,
-       updated_at = CURRENT_TIMESTAMP WHERE id = $5`,
-      [firstName.trim(), lastName.trim(), email.trim(), bio ? bio.trim() : null, req.user.userId]
+      `UPDATE users SET first_name = $1, middle_name = $2, last_name = $3, email = $4, bio = $5,
+       updated_at = CURRENT_TIMESTAMP WHERE id = $6`,
+      [firstName.trim(), middleName ? middleName.trim() : null, lastName.trim(), email.trim(), bio ? bio.trim() : null, req.user.userId]
     );
     return res.json(serializeUser(await loadUser(req.user.userId)));
   } catch (error) {
@@ -116,6 +117,33 @@ router.put('/change-password', requireAuth, async (req, res) => {
     console.error('Change password error:', error);
     return res.status(500).json({ message: 'Unable to change password.' });
   }
+});
+
+router.get('/', requireAuth, requireRole('admin'), async (req, res) => {
+  const result = await db.query(
+    `SELECT id, first_name, middle_name, last_name, username, email, role, created_at
+     FROM users ORDER BY created_at DESC LIMIT 500`
+  );
+  return res.json(result.rows);
+});
+
+router.patch('/:userId/role', requireAuth, requireRole('admin'), async (req, res) => {
+  const userId = Number(req.params.userId);
+  const { role } = req.body || {};
+  if (!Number.isInteger(userId) || !['member', 'staff', 'admin'].includes(role)) return res.status(400).json({ message: 'Invalid role update.' });
+  if (userId === req.user.userId && role !== 'admin') return res.status(400).json({ message: 'Administrators cannot remove their own admin role.' });
+  const result = await db.query('UPDATE users SET role = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, username, role', [role, userId]);
+  if (result.rows.length === 0) return res.status(404).json({ message: 'User not found.' });
+  return res.json(result.rows[0]);
+});
+
+router.patch('/:userId/status', requireAuth, requireRole('staff', 'admin'), async (req, res) => {
+  const userId = Number(req.params.userId);
+  const { status } = req.body || {};
+  if (!Number.isInteger(userId) || !['active', 'suspended', 'restricted'].includes(status)) return res.status(400).json({ message: 'Invalid account status.' });
+  const result = await db.query('UPDATE users SET account_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, username, account_status', [status, userId]);
+  if (result.rows.length === 0) return res.status(404).json({ message: 'User not found.' });
+  return res.json(result.rows[0]);
 });
 
 module.exports = router;

@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Session Check: Guard feed page
   const currentUser = api.getCurrentUser();
   if (!api.getToken() || !currentUser) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const postImageInput = document.getElementById('postImageInput');
   const postImagePreviewContainer = document.getElementById('postImagePreviewContainer');
   const postImagePreview = document.getElementById('postImagePreview');
+  const postVideoPreview = document.getElementById('postVideoPreview');
   const removeImageBtn = document.getElementById('removeImageBtn');
   const submitPostBtn = document.getElementById('submitPostBtn');
 
@@ -36,9 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Handle Logout
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      api.clearSession();
-      window.location.href = 'login.html';
+    logoutBtn.addEventListener('click', async () => {
+      await api.logout();
+      window.location.href = '/login';
     });
   }
 
@@ -62,6 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
     postForm.reset();
     attachedImageBase64 = null;
     postImagePreviewContainer.style.display = 'none';
+    postVideoPreview.style.display = 'none';
+    postVideoPreview.removeAttribute('src');
   };
 
   openComposerTrigger.addEventListener('click', openComposer);
@@ -73,15 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      showAlert('Please attach a valid image file.');
+    const isImage = file.type.startsWith('image/');
+    const isVideo = ['video/mp4', 'video/webm', 'video/quicktime'].includes(file.type);
+    if (!isImage && !isVideo) {
+      showAlert('Please attach a JPG, PNG, WEBP, MP4, WEBM, or MOV file.');
       return;
     }
+    if (file.size > 25 * 1024 * 1024) { showAlert('Media attachments must be 25 MB or smaller.'); return; }
 
     const reader = new FileReader();
     reader.onload = (event) => {
       attachedImageBase64 = event.target.result;
-      postImagePreview.src = attachedImageBase64;
+      postImagePreview.style.display = isImage ? 'block' : 'none';
+      postVideoPreview.style.display = isVideo ? 'block' : 'none';
+      if (isImage) postImagePreview.src = attachedImageBase64;
+      if (isVideo) postVideoPreview.src = attachedImageBase64;
       postImagePreviewContainer.style.display = 'block';
     };
     reader.readAsDataURL(file);
@@ -91,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attachedImageBase64 = null;
     postImageInput.value = '';
     postImagePreviewContainer.style.display = 'none';
+    postVideoPreview.style.display = 'none';
   });
 
   // Post Submission
@@ -111,7 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         body: JSON.stringify({
           content,
-          imageBase64: attachedImageBase64
+          imageBase64: attachedImageBase64 && attachedImageBase64.startsWith('data:image/') ? attachedImageBase64 : null,
+          videoBase64: attachedImageBase64 && attachedImageBase64.startsWith('data:video/') ? attachedImageBase64 : null
         })
       });
 
@@ -141,7 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     let mediaHtml = '';
-    if (post.media_url) {
+    if (post.media_url && post.media_type === 'video') {
+      mediaHtml = `<video src="${post.media_url}" class="post-media-attachment" controls preload="metadata" aria-label="Post video"></video>`;
+    } else if (post.media_url) {
       mediaHtml = `<img src="${post.media_url}" class="post-media-attachment" alt="Post attachment">`;
     }
 
@@ -159,12 +172,45 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" class="action-btn ${post.user_liked ? 'active-like' : ''}" data-post-id="${post.id}">
           ♥ <span class="like-count">${post.like_count || 0}</span> Likes
         </button>
+        <button type="button" class="action-btn share-btn"><span class="share-count">${post.share_count || 0}</span> Share</button>
+        <button type="button" class="action-btn report-btn">Report</button>
+      </div>
+      <div class="comments-section" style="margin-top:12px; border-top:1px solid var(--border-color); padding-top:10px;">
+        <button type="button" class="action-btn comments-toggle">${post.comment_count || 0} Comments</button>
+        <div class="comments-list" hidden></div>
+        <form class="comment-form" hidden style="display:flex; gap:8px; margin-top:8px;">
+          <label class="sr-only" for="comment-${post.id}">Add a comment</label>
+          <input id="comment-${post.id}" class="form-control" placeholder="Add a comment..." maxlength="2000" required>
+          <button class="btn btn-primary" type="submit">Post</button>
+        </form>
       </div>
     `;
 
     // Add Like Click Event Listener
     const likeBtn = card.querySelector('.action-btn');
     likeBtn.addEventListener('click', () => toggleLike(post.id, likeBtn));
+    card.querySelector('.share-btn').addEventListener('click', async (event) => {
+      try { const result = await api.request(`/posts/${post.id}/share`, { method: 'POST' }); event.currentTarget.querySelector('.share-count').textContent = result.shareCount; event.currentTarget.disabled = true; } catch (error) { showAlert(error.message || 'Unable to share post.'); }
+    });
+    card.querySelector('.report-btn').addEventListener('click', async () => {
+      const explanation = window.prompt('Optional report explanation:') || '';
+      try { await api.request('/reports', { method: 'POST', body: JSON.stringify({ targetType: 'post', targetId: post.id, reason: 'other', explanation }) }); showAlert('Report submitted.', 'success'); } catch (error) { showAlert(error.message || 'Unable to submit report.'); }
+    });
+    const commentsToggle = card.querySelector('.comments-toggle');
+    const commentsList = card.querySelector('.comments-list');
+    const commentForm = card.querySelector('.comment-form');
+    commentsToggle.addEventListener('click', async () => {
+      commentsList.hidden = false; commentForm.hidden = false; commentsList.textContent = 'Loading comments...';
+      try {
+        const comments = await api.request(`/posts/${post.id}/comments`); commentsList.innerHTML = comments.length ? comments.map((comment) => `<p style="font-size:13px; margin:8px 0;"><strong>${escapeHtml(`${comment.first_name} ${comment.last_name}`)}</strong> ${escapeHtml(comment.content)} ${Number(comment.author_id) === Number(currentUser.id) ? `<button type="button" class="edit-comment action-btn" data-id="${comment.id}" data-content="${escapeHtml(comment.content)}">Edit</button><button type="button" class="delete-comment action-btn" data-id="${comment.id}">Delete</button>` : ''}</p>`).join('') : '<p style="font-size:13px; color:var(--text-muted);">No comments yet. Be the first to comment.</p>';
+        commentsList.querySelectorAll('.edit-comment').forEach((button) => button.addEventListener('click', async () => { const content = window.prompt('Edit comment:', button.dataset.content); if (content && content.trim()) { await api.request(`/posts/comments/${button.dataset.id}`, { method: 'PUT', body: JSON.stringify({ content: content.trim() }) }); commentsToggle.click(); } }));
+        commentsList.querySelectorAll('.delete-comment').forEach((button) => button.addEventListener('click', async () => { if (window.confirm('Delete this comment?')) { await api.request(`/posts/comments/${button.dataset.id}`, { method: 'DELETE' }); commentsToggle.click(); } }));
+      } catch (error) { commentsList.textContent = error.message || 'Unable to load comments.'; }
+    });
+    commentForm.addEventListener('submit', async (event) => {
+      event.preventDefault(); const input = commentForm.querySelector('input');
+      try { await api.request(`/posts/${post.id}/comments`, { method: 'POST', body: JSON.stringify({ content: input.value.trim() }) }); input.value = ''; commentsToggle.click(); } catch (error) { showAlert(error.message || 'Unable to add comment.'); }
+    });
 
     return card;
   };
