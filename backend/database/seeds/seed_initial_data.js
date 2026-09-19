@@ -95,7 +95,10 @@ const seedInitialData = async () => {
     const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'ChangeThisAdminPassword2026!';
     const adminUsername = process.env.SEED_ADMIN_USERNAME || 'isied_admin';
 
-    const existingAdmin = await client.query(`SELECT id FROM users WHERE email = $1 OR username = $2`, [adminEmail, adminUsername]);
+    const existingAdmin = await client.query(
+      `SELECT id, password_hash FROM users WHERE email = $1 OR username = $2 OR username = 'isiedumyfp'`,
+      [adminEmail, adminUsername]
+    );
 
     if (existingAdmin.rows.length === 0) {
       const salt = await bcrypt.genSalt(10);
@@ -118,7 +121,20 @@ const seedInitialData = async () => {
       );
       logger.info(`Seeded initial Admin account: ${adminUsername} (${adminEmail})`);
     } else {
-      logger.info('Admin account already exists, skipping.');
+      const storedHash = existingAdmin.rows[0].password_hash || '';
+      const isBcryptHash = /^\$2[aby]?\$\d{2}\$/.test(storedHash);
+
+      if (!isBcryptHash) {
+        const salt = await bcrypt.genSalt(12);
+        const hashedPassword = await bcrypt.hash(adminPassword, salt);
+        await client.query(
+          `UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`,
+          [hashedPassword, existingAdmin.rows[0].id]
+        );
+        logger.info('Repaired the existing admin password hash.');
+      } else {
+        logger.info('Admin account already exists with a valid password hash, skipping.');
+      }
     }
 
     await client.query('COMMIT');
