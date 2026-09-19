@@ -102,14 +102,18 @@ router.post('/register', async (req, res) => {
     termsAccepted
   } = req.body || {};
 
-  if (!firstName || !lastName || !birthday || !clusterId || !localChurchId || !username || !email || !password || termsAccepted !== true) {
+  const normalizedUsername = typeof username === 'string' ? username.trim() : '';
+  const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+
+  if (!firstName || !lastName || !birthday || !clusterId || !localChurchId || !normalizedUsername || !isValidEmail || !password || password.length < 6 || termsAccepted !== true) {
     return res.status(400).json({ message: 'Please complete all required registration fields.' });
   }
 
   try {
     const existingUser = await db.query(
       `SELECT id FROM users WHERE username = $1 OR email = $2 LIMIT 1`,
-      [username, email]
+      [normalizedUsername, normalizedEmail]
     );
 
     if (existingUser.rows.length > 0) {
@@ -154,8 +158,8 @@ router.post('/register', async (req, res) => {
         firstName,
         middleName || null,
         lastName,
-        username,
-        email,
+        normalizedUsername,
+        normalizedEmail,
         passwordHash,
         birthday,
         clusterId,
@@ -164,11 +168,24 @@ router.post('/register', async (req, res) => {
         ]
       );
 
-      await client.query(
-        `INSERT INTO legal_agreements (user_id, agreement_type, policy_version, accepted)
-         VALUES ($1, 'terms', $2, TRUE), ($1, 'privacy', $2, TRUE)`,
-        [result.rows[0].id, 'v1.0-2026']
+      const legalColumns = await client.query(
+        `SELECT column_name FROM information_schema.columns
+         WHERE table_schema = 'public' AND table_name = 'legal_agreements'
+           AND column_name IN ('agreement_type', 'accepted')`
       );
+      const supportsDetailedAgreements = legalColumns.rows.length === 2;
+      if (supportsDetailedAgreements) {
+        await client.query(
+          `INSERT INTO legal_agreements (user_id, agreement_type, policy_version, accepted)
+           VALUES ($1, 'terms', $2, TRUE), ($1, 'privacy', $2, TRUE)`,
+          [result.rows[0].id, 'v1.0-2026']
+        );
+      } else {
+        await client.query(
+          `INSERT INTO legal_agreements (user_id, policy_version) VALUES ($1, $2)`,
+          [result.rows[0].id, 'v1.0-2026']
+        );
+      }
       await client.query('COMMIT');
     } catch (error) {
       await client.query('ROLLBACK');
@@ -194,6 +211,9 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
+    if (error.code === '23505') {
+      return res.status(409).json({ message: 'An account with that username or email already exists.' });
+    }
     return res.status(500).json({ message: 'Unable to create account. Please try again.' });
   }
 });
