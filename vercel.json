@@ -21,6 +21,38 @@
       "dest": "/backend/server.js"
     },
     {
+      "src": "/login",
+      "dest": "/frontend/login.html"
+    },
+    {
+      "src": "/register",
+      "dest": "/frontend/register.html"
+    },
+    {
+      "src": "/announcements",
+      "dest": "/frontend/announcements.html"
+    },
+    {
+      "src": "/rewards",
+      "dest": "/frontend/rewards.html"
+    },
+    {
+      "src": "/profile",
+      "dest": "/frontend/profile.html"
+    },
+    {
+      "src": "/notifications",
+      "dest": "/frontend/notifications.html"
+    },
+    {
+      "src": "/forgot-password",
+      "dest": "/frontend/forgot-password.html"
+    },
+    {
+      "src": "/reset-password",
+      "dest": "/frontend/reset-password.html"
+    },
+    {
       "handle": "filesystem"
     },
     {
