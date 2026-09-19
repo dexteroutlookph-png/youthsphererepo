@@ -1,27 +1,33 @@
 const express = require('express');
+const db = require('../database/connection');
 const { requireAuth } = require('../middleware/auth');
 const { uploadBase64 } = require('../config/cloudinary');
 
 const router = express.Router();
 
-const DEV_POSTS = [
-  {
-    id: 1,
-    first_name: 'Developer',
-    last_name: 'User',
-    author_avatar: 'https://placehold.co/100x100/062D58/FFFFFF?text=DU',
-    cluster_name: 'Alfonso Lista Cluster',
-    church_name: 'Alfonso Lista First UMC',
-    content: 'Developer mode is active. You can test features and debug the app while Live Server is open.',
-    created_at: new Date().toISOString(),
-    like_count: 12,
-    user_liked: false,
-    media_url: null
-  }
-];
+const postQuery = `
+  SELECT p.id, p.author_id, p.content, p.media_url, p.media_type, p.created_at,
+    u.first_name, u.last_name, u.profile_photo_url AS author_avatar,
+    c.name AS cluster_name, lc.name AS church_name,
+    COUNT(DISTINCT r.id)::int AS like_count,
+    EXISTS(SELECT 1 FROM reactions own_r WHERE own_r.post_id = p.id AND own_r.user_id = $1) AS user_liked
+  FROM posts p
+  JOIN users u ON u.id = p.author_id
+  LEFT JOIN clusters c ON c.id = u.cluster_id
+  LEFT JOIN local_churches lc ON lc.id = u.church_id
+  LEFT JOIN reactions r ON r.post_id = p.id AND r.type = 'like'
+  GROUP BY p.id, u.id, c.name, lc.name
+  ORDER BY p.created_at DESC
+  LIMIT 100`;
 
-router.get('/', requireAuth, (req, res) => {
-  return res.json(DEV_POSTS);
+router.get('/', requireAuth, async (req, res) => {
+  try {
+    const result = await db.query(postQuery, [req.user.userId]);
+    return res.json(result.rows);
+  } catch (error) {
+    console.error('Load posts error:', error);
+    return res.status(500).json({ message: 'Unable to load posts.' });
+  }
 });
 
 router.post('/', requireAuth, async (req, res) => {
@@ -31,41 +37,57 @@ router.post('/', requireAuth, async (req, res) => {
     return res.status(400).json({ message: 'Post content cannot be empty.' });
   }
 
-  let mediaUrl = null;
-  if (imageBase64) {
-    mediaUrl = await uploadBase64(imageBase64, 'youthsphere/posts');
+  try {
+    const mediaUrl = imageBase64 ? await uploadBase64(imageBase64, 'youthsphere/posts') : null;
+    const result = await db.query(
+      `INSERT INTO posts (author_id, content, media_url, media_type)
+       VALUES ($1, $2, $3, $4) RETURNING id`,
+      [req.user.userId, content.trim(), mediaUrl, mediaUrl ? 'image' : null]
+    );
+    const posts = await db.query(postQuery, [req.user.userId]);
+    const createdPost = posts.rows.find((post) => post.id === result.rows[0].id);
+    return res.status(201).json(createdPost);
+  } catch (error) {
+    console.error('Create post error:', error);
+    return res.status(500).json({ message: error.message || 'Unable to publish post.' });
   }
-
-  const newPost = {
-    id: Date.now(),
-    first_name: 'Developer',
-    last_name: 'User',
-    author_avatar: 'https://placehold.co/100x100/062D58/FFFFFF?text=DU',
-    cluster_name: 'Alfonso Lista Cluster',
-    church_name: 'Alfonso Lista First UMC',
-    content: content.trim(),
-    created_at: new Date().toISOString(),
-    like_count: 0,
-    user_liked: false,
-    media_url: mediaUrl
-  };
-
-  DEV_POSTS.unshift(newPost);
-  return res.status(201).json(newPost);
 });
 
-router.post('/:postId/like', requireAuth, (req, res) => {
+router.post('/:postId/like', requireAuth, async (req, res) => {
   const postId = Number(req.params.postId);
-  const post = DEV_POSTS.find((item) => Number(item.id) === postId);
 
-  if (!post) {
-    return res.status(404).json({ message: 'Post not found.' });
+  if (!Number.isInteger(postId)) {
+    return res.status(400).json({ message: 'Invalid post id.' });
   }
 
-  post.user_liked = !post.user_liked;
-  post.like_count = Math.max(0, post.like_count + (post.user_liked ? 1 : -1));
+  try {
+    const existing = await db.query(
+      `SELECT id FROM reactions WHERE post_id = $1 AND user_id = $2 AND type = 'like'`,
+      [postId, req.user.userId]
+    );
 
-  return res.json({ success: true, liked: post.user_liked, likeCount: post.like_count });
+    let liked;
+    if (existing.rows.length > 0) {
+      await db.query('DELETE FROM reactions WHERE id = $1', [existing.rows[0].id]);
+      liked = false;
+    } else {
+      await db.query(
+        `INSERT INTO reactions (post_id, user_id, type) VALUES ($1, $2, 'like')
+         ON CONFLICT (post_id, user_id) DO UPDATE SET type = 'like'`,
+        [postId, req.user.userId]
+      );
+      liked = true;
+    }
+
+    const count = await db.query(
+      `SELECT COUNT(*)::int AS like_count FROM reactions WHERE post_id = $1 AND type = 'like'`,
+      [postId]
+    );
+    return res.json({ success: true, liked, likeCount: count.rows[0].like_count });
+  } catch (error) {
+    console.error('Toggle like error:', error);
+    return res.status(500).json({ message: 'Unable to update like.' });
+  }
 });
 
 module.exports = router;

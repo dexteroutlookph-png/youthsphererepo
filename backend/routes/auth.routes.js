@@ -5,23 +5,22 @@ const bcrypt = require('bcryptjs');
 
 const router = express.Router();
 
-const CLUSTERS = [
-  { id: 1, name: 'Alfonso Lista Cluster' },
-  { id: 2, name: 'BRASO Cluster' },
-  { id: 3, name: 'Cabatuan Cluster' },
-  { id: 4, name: 'Ramon Cluster' },
-  { id: 5, name: 'San Mateo Cluster' },
-  { id: 6, name: 'VillaSS Cluster' }
-];
+const { uploadBase64 } = require('../config/cloudinary');
 
-const CHURCHES_BY_CLUSTER = {
-  1: ['Alfonso Lista First UMC', 'Bagong Sikat UMC', 'Namillangan UMC', 'San Quintin UMC', 'Sta. Maria UMC', 'Zion UMC'],
-  2: ['Burgos UMC', 'General Aguinaldo UMC', 'Oscariz UMC', 'Rising Hope UMC', 'San Marcos UMC'],
-  3: ['Cabatuan UMC', 'La Paz UMC', 'Namnama UMC', 'Tandul UMC'],
-  4: ['Aldersgate UMC', 'Grace UMC', 'Ramon UMC', 'San Sebastian UMC', 'Wesley UMC'],
-  5: ['Gaddanan UMC', 'Salinungan East UMC', 'Salinungan West UMC', 'San Mateo UMC', 'The Crossroad UMC', 'Victoria MC'],
-  6: ['Sinamar Norte UMC', 'Sinamar Sur UMC', 'Villa Cruz UMC', 'Villa Fuerte UMC', 'Villa Magat UMC']
-};
+const getUserResponse = (user) => ({
+  id: user.id,
+  firstName: user.first_name,
+  middleName: user.middle_name,
+  lastName: user.last_name,
+  username: user.username,
+  email: user.email,
+  birthday: user.birthday,
+  bio: user.bio,
+  role: user.role,
+  clusterName: user.cluster_name,
+  churchName: user.church_name,
+  avatarUrl: user.profile_photo_url || null
+});
 
 router.post('/login', async (req, res) => {
   const { usernameOrEmail, password } = req.body || {};
@@ -32,7 +31,11 @@ router.post('/login', async (req, res) => {
 
   try {
     const result = await db.query(
-      `SELECT * FROM users WHERE username = $1 OR email = $1 LIMIT 1`,
+      `SELECT u.*, c.name AS cluster_name, lc.name AS church_name
+       FROM users u
+       LEFT JOIN clusters c ON c.id = u.cluster_id
+       LEFT JOIN local_churches lc ON lc.id = u.church_id
+       WHERE u.username = $1 OR u.email = $1 LIMIT 1`,
       [usernameOrEmail]
     );
 
@@ -55,17 +58,7 @@ router.post('/login', async (req, res) => {
 
     return res.json({
       token,
-      user: {
-        id: user.id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        clusterName: user.cluster_id ? 'Alfonso Lista Cluster' : 'Alfonso Lista Cluster',
-        churchName: user.church_id ? 'Alfonso Lista First UMC' : 'Alfonso Lista First UMC',
-        avatarUrl: user.profile_photo_url || null
-      }
+      user: getUserResponse(user)
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -102,10 +95,24 @@ router.post('/register', async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const clusterName = CLUSTERS.find((cluster) => Number(cluster.id) === Number(clusterId))?.name || 'Alfonso Lista Cluster';
-    const churchName = CHURCHES_BY_CLUSTER[Number(clusterId)]?.[Number(localChurchId) - 1] || 'Alfonso Lista First UMC';
+    const client = await db.getClient();
+    let result;
+    try {
+      await client.query('BEGIN');
+      const location = await client.query(
+        `SELECT c.id AS cluster_id, c.name AS cluster_name, lc.id AS church_id, lc.name AS church_name
+         FROM clusters c JOIN local_churches lc ON lc.cluster_id = c.id
+         WHERE c.id = $1 AND lc.id = $2`,
+        [clusterId, localChurchId]
+      );
 
-    const result = await db.query(
+      if (location.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ message: 'Selected cluster and local church are invalid.' });
+      }
+
+      const profilePhotoUrl = avatarBase64 ? await uploadBase64(avatarBase64, 'youthsphere/avatars') : null;
+      result = await client.query(
       `INSERT INTO users (
         first_name, middle_name, last_name, username, email, password_hash, birthday,
         cluster_id, church_id, profile_photo_url, role
@@ -120,26 +127,34 @@ router.post('/register', async (req, res) => {
         birthday,
         clusterId,
         localChurchId,
-        avatarBase64 || null,
-      ]
-    );
+          profilePhotoUrl,
+        ]
+      );
 
-    const user = result.rows[0];
+      await client.query(
+        `INSERT INTO legal_agreements (user_id, policy_version) VALUES ($1, $2)`,
+        [result.rows[0].id, 'v1.0-2026']
+      );
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+
+    const userResult = await db.query(
+      `SELECT u.*, c.name AS cluster_name, lc.name AS church_name
+       FROM users u LEFT JOIN clusters c ON c.id = u.cluster_id
+       LEFT JOIN local_churches lc ON lc.id = u.church_id WHERE u.id = $1`,
+      [result.rows[0].id]
+    );
+    const user = userResult.rows[0];
     const token = signToken({ userId: user.id, username: user.username, email: user.email, role: user.role });
 
     return res.status(201).json({
       token,
-      user: {
-        id: user.id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        clusterName,
-        churchName,
-        avatarUrl: user.profile_photo_url || null
-      }
+      user: getUserResponse(user)
     });
   } catch (error) {
     console.error('Registration error:', error);

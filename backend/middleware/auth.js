@@ -9,7 +9,7 @@ const requireAuth = (req, res, next) => {
   }
 
   try {
-    const decoded = token.startsWith('dev-token-')
+    const decoded = process.env.NODE_ENV !== 'production' && token.startsWith('dev-token-')
       ? {
           userId: 1,
           username: 'devuser',

@@ -13,7 +13,7 @@ const uploadBase64 = async (base64, folder = 'youthsphere') => {
   }
 
   if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-    return null;
+    throw new Error('Cloudinary is not configured.');
   }
 
   try {
@@ -24,7 +24,7 @@ const uploadBase64 = async (base64, folder = 'youthsphere') => {
     return result.secure_url;
   } catch (error) {
     console.error('Cloudinary upload failed:', error.message);
-    return null;
+    throw new Error('Media upload failed.');
   }
 };
 

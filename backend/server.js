@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
@@ -9,6 +11,9 @@ const PORT = Number(process.env.PORT || 5001);
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  process.env.FRONTEND_URL,
+  process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
+  process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`,
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://localhost:5500',
@@ -34,6 +39,14 @@ app.use(cors({
 }));
 app.options('*', cors());
 
+app.use(helmet());
+app.use('/api', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -50,7 +63,7 @@ app.get('/api/health', async (req, res) => {
     return res.status(500).json({
       status: 'error',
       message: 'Database connection failed',
-      error: error.message
+      ...(process.env.NODE_ENV !== 'production' ? { error: error.message } : {})
     });
   }
 });
