@@ -13,9 +13,14 @@ const requireAuth = async (req, res, next) => {
   try {
     const decoded = verifyToken(token);
 
-    const account = await db.query('SELECT account_status FROM users WHERE id = $1 LIMIT 1', [decoded.userId]);
-    if (account.rows.length === 0 || account.rows[0].account_status !== 'active') {
-      return res.status(403).json({ message: 'This account is not active.' });
+    try {
+      const account = await db.query('SELECT account_status FROM users WHERE id = $1 LIMIT 1', [decoded.userId]);
+      if (account.rows.length === 0 || account.rows[0].account_status !== 'active') {
+        return res.status(403).json({ message: 'This account is not active.' });
+      }
+    } catch (accountError) {
+      // The status column is additive. Keep existing production users working until migration 002 is applied.
+      if (accountError.code !== '42703') throw accountError;
     }
 
     if (decoded.sessionManaged) {
