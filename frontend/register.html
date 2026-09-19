@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - YouthSphere | ISIED</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-logo-img">YS</div>
+      <div>
+        <div class="brand-title">YouthSphere</div>
+        <div class="brand-subtitle">ISIED District Registration</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth-page-container">
+    <div class="auth-wrapper" style="max-width: 720px; grid-template-columns: 1fr;">
+      
+      <section class="auth-card">
+        <h2 class="auth-card-title">Create Your YouthSphere Account</h2>
+        <p class="auth-card-subtitle">Join the Isabela South Ifugao East District YouthSphere.</p>
+
+        <div id="registerAlert" class="alert-box" style="display: none; padding: 10px; margin-bottom: 18px; border-radius: 6px; font-size: 13px;"></div>
+
+        <form id="registerForm" novalidate>
+          
+          <!-- Avatar Upload & Crop Section -->
+          <div class="cropper-area">
+            <label class="form-label">Profile Picture</label>
+            <img id="avatarPreview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='110' height='110' viewBox='0 0 24 24' fill='%23062D58'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" class="avatar-preview-circle" alt="Profile Preview">
+            <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
+            <button type="button" id="choosePhotoBtn" class="btn btn-outline" style="font-size: 12px; padding: 6px 14px;">Select Photo</button>
+          </div>
+
+          <!-- Personal Information -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="firstName" class="form-label">First Name *</label>
+              <input type="text" id="firstName" class="form-control" placeholder="Juan" required>
+            </div>
+            <div class="form-group">
+              <label for="middleName" class="form-label">Middle Name</label>
+              <input type="text" id="middleName" class="form-control" placeholder="Dela">
+            </div>
+            <div class="form-group">
+              <label for="lastName" class="form-label">Last Name *</label>
+              <input type="text" id="lastName" class="form-control" placeholder="Cruz" required>
+            </div>
+          </div>
+
+          <!-- Birthday & Auto-Computed Age -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="birthday" class="form-label">Date of Birth *</label>
+              <input type="date" id="birthday" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Age</label>
+              <div class="age-badge-input">
+                <span id="ageDisplayBadge" class="age-display">-- yrs old</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Cluster & Church Selectors -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="clusterSelect" class="form-label">Cluster *</label>
+              <select id="clusterSelect" class="form-control" required>
+                <option value="">Select Cluster</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="churchSelect" class="form-label">Local Church *</label>
+              <select id="churchSelect" class="form-control" required disabled>
+                <option value="">Select Local Church</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Account Credentials -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="username" class="form-label">Username *</label>
+              <input type="text" id="username" class="form-control" placeholder="juandelacruz" required>
+            </div>
+            <div class="form-group">
+              <label for="email" class="form-label">Email Address *</label>
+              <input type="email" id="email" class="form-control" placeholder="juan@example.com" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="password" class="form-label">Password *</label>
+              <div class="password-input-wrapper">
+                <input type="password" id="password" class="form-control" placeholder="At least 6 characters" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword" class="form-label">Confirm Password *</label>
+              <input type="password" id="confirmPassword" class="form-control" placeholder="Re-enter password" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); cursor: pointer;">
+              <input type="checkbox" id="termsCheck" required>
+              I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>.
+            </label>
+          </div>
+
+          <button type="submit" id="registerSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+            Complete Registration
+          </button>
+        </form>
+
+        <div style="margin-top: 20px; text-align: center; font-size: 13px; color: var(--text-secondary);">
+          Already registered? <a href="login.html" style="font-weight: 700; color: var(--primary-navy);">Sign in here</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Canvas Image Cropper Modal -->
+  <div id="cropperModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Crop Profile Picture</h3>
+        <button type="button" id="closeCropperBtn" style="background:none; border:none; font-size:18px; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; align-items:center; gap:14px;">
+        <div class="crop-canvas-wrapper">
+          <canvas id="cropCanvas" width="220" height="220"></canvas>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted);">Adjust zoom using the slider below:</p>
+        <input type="range" id="zoomRange" min="0.5" max="2.5" step="0.05" value="1" style="width: 80%;">
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="cancelCropBtn" class="btn btn-outline">Cancel</button>
+        <button type="button" id="applyCropBtn" class="btn btn-primary">Apply Crop</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/register.js"></script>
+</body>
+</html>

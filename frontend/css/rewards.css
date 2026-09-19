@@ -1,0 +1,70 @@
+/* Virtual Reward Card Companion Styling */
+
+.rewards-container {
+  max-width: 600px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.virtual-card-wrapper {
+  background: linear-gradient(135deg, var(--primary-navy) 0%, #08386D 100%);
+  color: var(--text-white);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--primary-yellow);
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.virtual-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.virtual-card-chip {
+  width: 42px;
+  height: 30px;
+  background: linear-gradient(135deg, #E2B04A 0%, #FBB112 100%);
+  border-radius: 4px;
+}
+
+.virtual-card-number {
+  font-family: monospace;
+  font-size: 18px;
+  letter-spacing: 2.5px;
+  color: var(--primary-yellow);
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+/* 10-Stamp Visual Grid */
+.stamp-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.stamp-slot {
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  border: 2px dashed rgba(251, 177, 18, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.stamp-slot.completed {
+  border-style: solid;
+  border-color: var(--primary-yellow);
+  background-color: var(--primary-yellow);
+  color: var(--primary-navy);
+  box-shadow: 0 0 10px rgba(251, 177, 18, 0.5);
+}
