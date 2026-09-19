@@ -53,11 +53,11 @@
       "dest": "/frontend/reset-password.html"
     },
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/",
       "dest": "/frontend/index.html"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
