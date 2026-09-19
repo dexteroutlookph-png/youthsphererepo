@@ -95,6 +95,18 @@ router.post('/register', async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    let profilePhotoUrl = null;
+    let mediaWarning = null;
+
+    if (avatarBase64) {
+      try {
+        profilePhotoUrl = await uploadBase64(avatarBase64, 'youthsphere/avatars');
+      } catch (error) {
+        console.error('Registration avatar upload skipped:', error.message);
+        mediaWarning = 'Account created, but the profile photo could not be uploaded.';
+      }
+    }
+
     const client = await db.getClient();
     let result;
     try {
@@ -111,7 +123,6 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'Selected cluster and local church are invalid.' });
       }
 
-      const profilePhotoUrl = avatarBase64 ? await uploadBase64(avatarBase64, 'youthsphere/avatars') : null;
       result = await client.query(
       `INSERT INTO users (
         first_name, middle_name, last_name, username, email, password_hash, birthday,
@@ -154,7 +165,8 @@ router.post('/register', async (req, res) => {
 
     return res.status(201).json({
       token,
-      user: getUserResponse(user)
+      user: getUserResponse(user),
+      ...(mediaWarning ? { warning: mediaWarning } : {})
     });
   } catch (error) {
     console.error('Registration error:', error);
