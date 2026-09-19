@@ -35,14 +35,6 @@
   color: var(--primary-yellow);
 }
 
-.mobile-nav-button {
-  border: 0;
-  padding: 0;
-  background: transparent;
-  font: inherit;
-  cursor: pointer;
-}
-
 @media (max-width: 768px) {
   .desktop-nav {
     display: none;

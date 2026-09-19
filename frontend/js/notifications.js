@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) { container.innerHTML = ''; alert.textContent = error.message || 'Unable to load notifications.'; alert.style.display = 'block'; }
   };
   document.getElementById('readAllBtn').addEventListener('click', async () => { await api.request('/notifications/read-all', { method: 'PATCH' }); load(); });
-  document.getElementById('logoutBtn').addEventListener('click', async () => { await api.logout(); window.location.href = '/login'; });
   const escapeHtml = (value) => String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   load();
 });

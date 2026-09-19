@@ -25,9 +25,37 @@ const postQuery = `
   ORDER BY p.created_at DESC
   LIMIT 100`;
 
+const legacyPostQuery = `
+  SELECT p.id, p.author_id, p.content, p.media_url, p.media_type, p.created_at,
+    u.first_name, u.last_name, u.profile_photo_url AS author_avatar,
+    c.name AS cluster_name, lc.name AS church_name,
+    COUNT(DISTINCT r.id)::int AS like_count,
+    COUNT(DISTINCT cmt.id)::int AS comment_count,
+    0::int AS share_count,
+    EXISTS(SELECT 1 FROM reactions own_r WHERE own_r.post_id = p.id AND own_r.user_id = $1 AND own_r.type = 'like') AS user_liked
+  FROM posts p
+  JOIN users u ON u.id = p.author_id
+  LEFT JOIN clusters c ON c.id = u.cluster_id
+  LEFT JOIN local_churches lc ON lc.id = u.church_id
+  LEFT JOIN reactions r ON r.post_id = p.id AND r.type = 'like'
+  LEFT JOIN comments cmt ON cmt.post_id = p.id
+  GROUP BY p.id, u.id, c.name, lc.name
+  ORDER BY p.created_at DESC
+  LIMIT 100`;
+
+const loadPosts = async (userId) => {
+  try {
+    return await db.query(postQuery, [userId]);
+  } catch (error) {
+    if (!['42P01', '42703'].includes(error.code)) throw error;
+    console.warn('Optional post sharing schema is not applied yet; using compatibility feed query.');
+    return db.query(legacyPostQuery, [userId]);
+  }
+};
+
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const result = await db.query(postQuery, [req.user.userId]);
+    const result = await loadPosts(req.user.userId);
     return res.json(result.rows);
   } catch (error) {
     console.error('Load posts error:', error);
@@ -54,7 +82,7 @@ router.post('/', requireAuth, async (req, res) => {
        VALUES ($1, $2, $3, $4) RETURNING id`,
       [req.user.userId, content.trim(), mediaUrl, mediaType]
     );
-    const posts = await db.query(postQuery, [req.user.userId]);
+    const posts = await loadPosts(req.user.userId);
     const createdPost = posts.rows.find((post) => post.id === result.rows[0].id);
     return res.status(201).json(createdPost);
   } catch (error) {

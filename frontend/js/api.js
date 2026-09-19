@@ -61,12 +61,3 @@ const api = {
     return data;
   }
 };
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('#mobileLogoutBtn').forEach((button) => {
-    button.addEventListener('click', async () => {
-      await api.logout();
-      window.location.href = '/login';
-    });
-  });
-});
