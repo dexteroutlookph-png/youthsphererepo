@@ -1,18 +1,18 @@
 /* YouthSphere Social Feed & Post UI */
 
 .feed-layout {
-  max-width: 680px;
-  margin: 24px auto;
-  padding: 0 16px;
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 0 20px;
 }
 
 /* Post Composer */
 .post-composer-card {
   background: var(--card-bg);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 14px;
   border: 1px solid var(--border-color);
-  margin-bottom: 24px;
+  margin-bottom: 18px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -21,6 +21,7 @@
   align-items: center;
   gap: 12px;
   background-color: var(--bg-main);
+  min-height: 58px;
   padding: 10px 16px;
   border-radius: var(--radius-full);
   cursor: pointer;
@@ -43,8 +44,8 @@
   background: var(--card-bg);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  padding: 20px;
-  margin-bottom: 20px;
+  padding: 22px;
+  margin-bottom: 16px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -52,7 +53,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .post-avatar {
@@ -72,18 +73,20 @@
   font-weight: 700;
   color: var(--primary-navy);
   font-size: 15px;
+  line-height: 1.25;
 }
 
 .post-meta-sub {
   font-size: 12px;
   color: var(--text-muted);
+  line-height: 1.4;
 }
 
 .post-content-text {
   font-size: 15px;
   color: var(--text-primary);
-  line-height: 1.5;
-  margin-bottom: 14px;
+  line-height: 1.65;
+  margin-bottom: 16px;
   white-space: pre-wrap;
 }
 
@@ -101,8 +104,8 @@
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid var(--border-color);
-  padding-top: 12px;
-  margin-top: 12px;
+  padding-top: 10px;
+  margin-top: 14px;
 }
 
 .action-btn {
@@ -115,7 +118,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  min-height: 36px;
+  padding: 6px 10px;
   border-radius: var(--radius-sm);
   transition: var(--transition-fast);
 }
@@ -127,4 +131,9 @@
 
 .action-btn.active-like {
   color: #E53E3E;
+}
+
+.composer-trigger-box:focus-visible {
+  outline: 3px solid rgba(251, 177, 18, 0.55);
+  outline-offset: 2px;
 }

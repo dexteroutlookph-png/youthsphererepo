@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       showAlert('Registration successful! Redirecting to login...', 'success');
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = 'login.html';
       }, 1200);
 
     } catch (err) {

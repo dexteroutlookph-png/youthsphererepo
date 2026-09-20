@@ -8,8 +8,11 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const db = require('./database/connection');
 const app = express();
 const PORT = Number(process.env.PORT || 5001);
+const frontendRoot = path.resolve(__dirname, '../frontend');
 
 const allowedOrigins = [
+  'http://127.0.0.1:5500',
+  'http://localhost:5500',
   process.env.CLIENT_URL,
   process.env.FRONTEND_URL,
   process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
@@ -41,6 +44,7 @@ app.use('/api', rateLimit({
 
 app.use(express.json({ limit: '30mb' }));
 app.use(express.urlencoded({ extended: true, limit: '30mb' }));
+app.use(express.static(frontendRoot));
 
 app.get('/api/health', async (req, res) => {
   const configuration = {
@@ -86,6 +90,22 @@ app.use('/api/rewards', require('./routes/rewards.routes'));
 app.use('/api/users', require('./routes/users.routes'));
 app.use('/api/notifications', require('./routes/notifications.routes'));
 app.use('/api/reports', require('./routes/reports.routes'));
+
+const frontendPages = {
+  '/': 'index.html',
+  '/login': 'login.html',
+  '/register': 'register.html',
+  '/announcements': 'announcements.html',
+  '/rewards': 'rewards.html',
+  '/profile': 'profile.html',
+  '/notifications': 'notifications.html',
+  '/forgot-password': 'forgot-password.html',
+  '/reset-password': 'reset-password.html'
+};
+
+Object.entries(frontendPages).forEach(([route, file]) => {
+  app.get(route, (req, res) => res.sendFile(path.join(frontendRoot, file)));
+});
 
 app.use((err, req, res, next) => {
   console.error('Server error:', err.stack);

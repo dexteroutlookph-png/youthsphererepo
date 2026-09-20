@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Session Check: Guard feed page
   const currentUser = api.getCurrentUser();
   if (!api.getToken() || !currentUser) {
-    window.location.href = '/login';
+    window.location.href = 'login.html';
     return;
   }
 
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       await api.logout();
-      window.location.href = '/login';
+      window.location.href = 'login.html';
     });
   }
 
@@ -68,6 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   openComposerTrigger.addEventListener('click', openComposer);
+  openComposerTrigger.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openComposer();
+    }
+  });
   closeComposerBtn.addEventListener('click', closeComposer);
   cancelPostBtn.addEventListener('click', closeComposer);
 

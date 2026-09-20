@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Session Check
   const currentUser = api.getCurrentUser();
   if (!api.getToken() || !currentUser) {
-    window.location.href = '/login';
+    window.location.href = 'login.html';
     return;
   }
 
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       await api.logout();
-      window.location.href = '/login';
+      window.location.href = 'login.html';
     });
   }
 

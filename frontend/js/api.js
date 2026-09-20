@@ -46,14 +46,16 @@ const api = {
       headers
     };
 
-    const url = `/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    const apiBase = window.location.port === '5500' ? 'http://localhost:5001/api' : '/api';
+    const url = `${apiBase}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     const response = await fetch(url, config);
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       if (response.status === 401 && !endpoint.startsWith('/auth/')) {
         this.clearSession();
-        if (window.location.pathname !== '/login') window.location.href = '/login';
+        const isLoginPage = window.location.pathname === '/login' || window.location.pathname.endsWith('/login.html');
+        if (!isLoginPage) window.location.href = 'login.html';
       }
       throw new Error(data.message || `Request failed with status ${response.status}.`);
     }

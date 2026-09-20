@@ -21,11 +21,11 @@
     </div>
 
     <nav class="desktop-nav">
-      <a href="/" class="nav-link active">Home</a>
-      <a href="/announcements" class="nav-link">Announcements</a>
-      <a href="/rewards" class="nav-link">Reward Card</a>
-      <a href="/profile" class="nav-link">Profile</a>
-      <a href="/notifications" class="nav-link">Notifications</a>
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="announcements.html" class="nav-link">Announcements</a>
+      <a href="rewards.html" class="nav-link">Reward Card</a>
+      <a href="profile.html" class="nav-link">Profile</a>
+      <a href="notifications.html" class="nav-link">Notifications</a>
     </nav>
   </header>
 
@@ -33,7 +33,7 @@
     
     <!-- Post Composer Card -->
     <div class="post-composer-card">
-      <div class="composer-trigger-box" id="openComposerTrigger">
+      <div class="composer-trigger-box" id="openComposerTrigger" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="composerModal">
         <img id="userComposerAvatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24' fill='%23062D58'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" class="post-avatar" alt="Your Avatar" style="width: 36px; height: 36px;">
         <span class="composer-placeholder" id="composerPlaceholderText">Share something with ISIED Youth...</span>
       </div>
@@ -53,19 +53,19 @@
   <!-- Mobile Bottom Navigation -->
   <nav class="mobile-nav">
     <ul class="mobile-nav-list">
-      <li><a href="/" class="mobile-nav-link active">Home</a></li>
-      <li><a href="/announcements" class="mobile-nav-link">Announcements</a></li>
-      <li><a href="/rewards" class="mobile-nav-link">Card</a></li>
-      <li><a href="/profile" class="mobile-nav-link">Profile</a></li>
+      <li><a href="index.html" class="mobile-nav-link active">Home</a></li>
+      <li><a href="announcements.html" class="mobile-nav-link">Announcements</a></li>
+      <li><a href="rewards.html" class="mobile-nav-link">Card</a></li>
+      <li><a href="profile.html" class="mobile-nav-link">Profile</a></li>
     </ul>
   </nav>
 
   <!-- Create Post Modal Dialog -->
   <div id="composerModal" class="modal-overlay">
-    <div class="modal-card">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="composerModalTitle">
       <div class="modal-header">
-        <h3 class="modal-title">Create Post</h3>
-        <button type="button" id="closeComposerBtn" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
+        <h3 class="modal-title" id="composerModalTitle">Create Post</h3>
+        <button type="button" id="closeComposerBtn" aria-label="Close create post dialog" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
       </div>
       <form id="postForm">
         <div class="modal-body">

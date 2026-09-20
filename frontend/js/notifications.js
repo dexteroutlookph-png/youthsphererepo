@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  if (!api.getToken() || !api.getCurrentUser()) { window.location.href = '/login'; return; }
+  if (!api.getToken() || !api.getCurrentUser()) { window.location.href = 'login.html'; return; }
   const container = document.getElementById('notificationsContainer');
   const alert = document.getElementById('notificationAlert');
   const load = async () => {
