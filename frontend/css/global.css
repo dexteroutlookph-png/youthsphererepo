@@ -54,6 +54,7 @@
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-main);
+  background-image: linear-gradient(135deg, #eef4fb 0%, var(--bg-main) 48%, #f8fafc 100%);
   color: var(--text-primary);
   line-height: 1.5;
   font-size: 15px;
@@ -93,6 +94,28 @@ a:hover {
   box-shadow: var(--shadow-md);
 }
 
+body:has(.desktop-nav) {
+  padding-left: 244px;
+}
+
+body:has(.desktop-nav) .app-header {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 244px;
+  min-height: 100vh;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  box-shadow: 4px 0 18px rgba(6, 45, 88, 0.08);
+}
+
+body:has(.desktop-nav) .brand-container {
+  padding: 0 10px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
 .brand-container {
   display: flex;
   align-items: center;
@@ -129,6 +152,12 @@ a:hover {
   gap: 4px;
 }
 
+body:has(.desktop-nav) .desktop-nav {
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 24px;
+}
+
 .nav-link {
   color: rgba(255, 255, 255, 0.85);
   padding: 9px 13px;
@@ -139,6 +168,25 @@ a:hover {
   align-items: center;
   gap: 8px;
   transition: var(--transition-fast);
+}
+
+body:has(.desktop-nav) .nav-link {
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  justify-content: flex-start;
+}
+
+body:has(.desktop-nav) .nav-link::before {
+  content: '\2022';
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 16px;
+  line-height: 0;
+}
+
+body:has(.desktop-nav) .nav-link.active::before,
+body:has(.desktop-nav) .nav-link:hover::before {
+  color: var(--primary-yellow);
 }
 
 .nav-link:hover, .nav-link.active {
@@ -335,4 +383,39 @@ a:hover {
 
 .nav-link.active {
   box-shadow: inset 0 -2px 0 var(--primary-yellow);
+}
+
+@media (max-width: 900px) {
+  body:has(.desktop-nav) {
+    padding-left: 0;
+  }
+
+  body:has(.desktop-nav) .app-header {
+    position: sticky;
+    inset: auto;
+    width: auto;
+    min-height: 0;
+    padding: 14px 20px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  body:has(.desktop-nav) .brand-container {
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  body:has(.desktop-nav) .desktop-nav {
+    flex-direction: row;
+    padding-top: 0;
+  }
+
+  body:has(.desktop-nav) .nav-link {
+    min-height: 0;
+  }
+
+  body:has(.desktop-nav) .nav-link::before {
+    display: none;
+  }
 }
