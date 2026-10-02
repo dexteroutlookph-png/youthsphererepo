@@ -6,6 +6,7 @@
   <title>Profile Settings - YouthSphere | ISIED</title>
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/profile.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
@@ -21,43 +22,71 @@
     </div>
 
     <nav class="desktop-nav">
-      <a href="index.html" class="nav-link">Home</a>
-      <a href="announcements.html" class="nav-link">Announcements</a>
-      <a href="rewards.html" class="nav-link">Reward Card</a>
-      <a href="profile.html" class="nav-link active">Profile</a>
-      <a href="notifications.html" class="nav-link">Notifications</a>
+      <a href="index.html" class="nav-link" data-icon="⌂">Home</a>
+      <a href="announcements.html" class="nav-link" data-icon="◈">Announcements</a>
+      <a href="rewards.html" class="nav-link" data-icon="▣">Reward Card</a>
+      <a href="profile.html" class="nav-link active" data-icon="♙">Profile</a>
+      <a href="notifications.html" class="nav-link" data-icon="◉">Notifications</a>
     </nav>
   </header>
 
-  <main class="feed-layout" style="max-width: 680px;">
+  <main class="feed-layout profile-page">
     
-    <div style="margin-bottom: 20px;">
-      <h2 style="color: var(--primary-navy); margin-bottom: 4px;">Member Profile & Settings</h2>
-      <p style="color: var(--text-secondary); font-size: 14px;">Manage your personal account information and security options.</p>
+    <div class="profile-page-heading">
+      <h2>Member Profile</h2>
+      <p>Your account details and community information.</p>
     </div>
 
     <div id="profileAlert" class="alert-box" style="display: none; padding: 12px; margin-bottom: 18px; border-radius: 6px; font-size: 13px;"></div>
 
-    <!-- Profile Header Card -->
-    <div class="post-card" style="padding: 24px; text-align: center; margin-bottom: 20px;">
-      <div style="position: relative; display: inline-block; margin-bottom: 12px;">
-        <img id="profileAvatarDisplay" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 24 24' fill='%23062D58'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-navy);" alt="User Avatar">
+    <section class="profile-header-card" aria-labelledby="profileFullName">
+      <div class="profile-avatar-wrap">
+        <img id="profileAvatarDisplay" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 24 24' fill='%23062D58'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" class="profile-avatar-lg" alt="User Avatar">
         <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;">
-        <button type="button" id="changeAvatarBtn" class="btn btn-primary" style="position: absolute; bottom: 0; right: -6px; border-radius: 50%; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 14px;" title="Update Photo">📷</button>
+        <button type="button" id="changeAvatarBtn" class="btn btn-outline profile-avatar-edit" title="Update photo">Change photo</button>
       </div>
 
-      <h3 id="profileFullName" style="color: var(--primary-navy); font-size: 20px; font-weight: 700;">Loading Name...</h3>
-      <div id="profileUsernameTag" style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">@username</div>
-
-      <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap;">
-        <span id="profileChurchBadge" style="background: #E0F2FE; color: #0369A1; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 12px;">Local Church</span>
-        <span id="profileClusterBadge" style="background: #FEF3C7; color: #92400E; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 12px;">Cluster</span>
+      <div class="profile-identity">
+        <h3 id="profileFullName">Loading Name...</h3>
+        <div id="profileUsernameTag">@username</div>
+        <div class="profile-badges-row">
+          <span id="profileChurchBadge" class="profile-badge church-badge">Local Church</span>
+          <span id="profileClusterBadge" class="profile-badge cluster-badge">Cluster</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Edit Profile Form -->
-    <div class="post-card" style="padding: 24px; margin-bottom: 20px;">
-      <h3 style="color: var(--primary-navy); font-size: 16px; margin-bottom: 16px;">Personal Details</h3>
+      <div class="profile-header-actions">
+        <button type="button" id="editProfileBtn" class="btn btn-primary">Edit Profile</button>
+      </div>
+    </section>
+
+    <section class="profile-content-grid" aria-label="Profile information">
+      <article class="profile-section-card">
+        <h3>Personal Information</h3>
+        <dl class="profile-details-grid">
+          <div><dt>Full name</dt><dd id="profileNameDisplay">Loading...</dd></div>
+          <div><dt>Email address</dt><dd id="profileEmailDisplay">Loading...</dd></div>
+          <div><dt>Birthday</dt><dd id="profileBirthdayDisplay">Not provided</dd></div>
+          <div><dt>Username</dt><dd id="profileUsernameDisplay">Loading...</dd></div>
+        </dl>
+      </article>
+      <article class="profile-section-card profile-about-card">
+        <h3>About Me</h3>
+        <p id="profileBioDisplay">Add a short introduction or favorite verse to tell your community a little about you.</p>
+      </article>
+    </section>
+
+    <section id="profileEditPanel" class="profile-edit-panel" hidden>
+      <div class="profile-edit-heading">
+        <div>
+          <h3>Edit Profile</h3>
+          <p>Update your personal information or account security.</p>
+        </div>
+        <button type="button" id="cancelProfileEditBtn" class="btn btn-outline">Cancel</button>
+      </div>
+
+      <div class="post-card profile-form-card">
+        <h3 class="profile-form-title">Personal Details</h3>
       
       <form id="profileDetailsForm" novalidate>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -96,11 +125,10 @@
           Save Details
         </button>
       </form>
-    </div>
+      </div>
 
-    <!-- Password Security Settings -->
-    <div class="post-card" style="padding: 24px;">
-      <h3 style="color: var(--primary-navy); font-size: 16px; margin-bottom: 16px;">Security & Password</h3>
+      <div class="post-card profile-form-card">
+        <h3 class="profile-form-title">Security &amp; Password</h3>
 
       <form id="passwordChangeForm" novalidate>
         <div class="form-group">
@@ -123,7 +151,8 @@
           Update Password
         </button>
       </form>
-    </div>
+      </div>
+    </section>
 
     <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-bottom: 8px;">
       <button type="button" id="logoutBtn" class="btn btn-outline" style="color: var(--primary-navy); border-color: var(--primary-navy);">Log out</button>
@@ -138,6 +167,7 @@
       <li><a href="announcements.html" class="mobile-nav-link">Announcements</a></li>
       <li><a href="rewards.html" class="mobile-nav-link">Card</a></li>
       <li><a href="profile.html" class="mobile-nav-link active">Profile</a></li>
+      <li><a href="notifications.html" class="mobile-nav-link">Alerts</a></li>
     </ul>
   </nav>
 

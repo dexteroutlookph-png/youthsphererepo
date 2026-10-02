@@ -1,8 +1,8 @@
 /* YouthSphere Social Feed & Post UI */
 
 .feed-layout {
-  max-width: 720px;
-  margin: 32px auto;
+  max-width: 920px;
+  margin: 30px auto;
   padding: 0 20px;
 }
 
@@ -31,9 +31,9 @@
 .rail-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: 18px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(6, 45, 88, 0.045);
+  padding: 20px;
 }
 
 .rail-card h3 {
@@ -78,11 +78,11 @@
 /* Post Composer */
 .post-composer-card {
   background: var(--card-bg);
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   padding: 14px;
   border: 1px solid var(--border-color);
   margin-bottom: 18px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 8px 24px rgba(6, 45, 88, 0.045);
 }
 
 .composer-trigger-box {
@@ -111,11 +111,78 @@
 /* Post Item Card */
 .post-card {
   background: var(--card-bg);
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   border: 1px solid var(--border-color);
   padding: 22px;
   margin-bottom: 16px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 8px 24px rgba(6, 45, 88, 0.045);
+}
+
+.feed-layout > h1,
+.feed-layout > div > h1,
+.feed-layout > div > h2 {
+  color: var(--primary-navy);
+  letter-spacing: 0;
+}
+
+.feed-layout > div > p {
+  color: var(--text-secondary);
+}
+
+#feedContainer,
+#announcementsContainer,
+#notificationsContainer,
+#historyContainer {
+  min-width: 0;
+}
+
+.notifications-page {
+  max-width: 860px;
+}
+
+.notifications-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.notifications-heading h1 {
+  color: var(--primary-navy);
+  font-size: 23px;
+}
+
+.notifications-heading p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.notifications-loading {
+  padding: 36px 16px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+#notificationsContainer .post-card {
+  padding: 17px 18px;
+  border-left: 3px solid var(--primary-yellow);
+}
+
+#notificationsContainer .post-card[style*="opacity: 0.7"] {
+  border-left-color: var(--border-color);
+  background: #fbfcfd;
+}
+
+.filter-pill {
+  border-radius: 5px !important;
+}
+
+.filter-pill.active {
+  background: var(--primary-yellow);
+  border-color: var(--primary-yellow);
+  color: var(--primary-navy);
 }
 
 .post-header {
@@ -215,5 +282,16 @@
 
   .home-rail {
     margin-top: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .notifications-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .notifications-heading .btn {
+    width: 100%;
   }
 }

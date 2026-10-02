@@ -20,6 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const profileUsernameTag = document.getElementById('profileUsernameTag');
   const profileChurchBadge = document.getElementById('profileChurchBadge');
   const profileClusterBadge = document.getElementById('profileClusterBadge');
+  const profileEditPanel = document.getElementById('profileEditPanel');
+  const editProfileBtn = document.getElementById('editProfileBtn');
+  const cancelProfileEditBtn = document.getElementById('cancelProfileEditBtn');
+  const profileNameDisplay = document.getElementById('profileNameDisplay');
+  const profileEmailDisplay = document.getElementById('profileEmailDisplay');
+  const profileBirthdayDisplay = document.getElementById('profileBirthdayDisplay');
+  const profileUsernameDisplay = document.getElementById('profileUsernameDisplay');
+  const profileBioDisplay = document.getElementById('profileBioDisplay');
 
   // Profile Edit Form Elements
   const profileDetailsForm = document.getElementById('profileDetailsForm');
@@ -64,9 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Populate Initial User Values
   const populateProfileData = (user) => {
-    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    const fullName = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(' ');
     profileFullName.textContent = fullName || user.username;
     profileUsernameTag.textContent = `@${user.username || 'user'}`;
+    profileNameDisplay.textContent = fullName || user.username || 'Not provided';
+    profileEmailDisplay.textContent = user.email || 'Not provided';
+    profileUsernameDisplay.textContent = user.username ? `@${user.username}` : 'Not provided';
+    profileBioDisplay.textContent = user.bio || 'Add a short introduction or favorite verse to tell your community a little about you.';
     
     if (user.avatarUrl) {
       profileAvatarDisplay.src = user.avatarUrl;
@@ -83,8 +95,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (user.birthday) {
       editBirthday.value = user.birthday.split('T')[0];
+      profileBirthdayDisplay.textContent = new Date(`${editBirthday.value}T00:00:00`).toLocaleDateString([], {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+    } else {
+      editBirthday.value = '';
+      profileBirthdayDisplay.textContent = 'Not provided';
     }
   };
+
+  const setProfileEditing = (isEditing) => {
+    profileEditPanel.hidden = !isEditing;
+    editProfileBtn.hidden = isEditing;
+    if (isEditing) profileEditPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  editProfileBtn.addEventListener('click', () => setProfileEditing(true));
+  cancelProfileEditBtn.addEventListener('click', () => {
+    populateProfileData(api.getCurrentUser() || currentUser);
+    profileAlert.style.display = 'none';
+    setProfileEditing(false);
+  });
 
   // Fetch Latest Profile Data from Backend
   const loadLatestProfile = async () => {
@@ -159,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
       api.setSession(api.getToken(), updatedUser);
       populateProfileData(updatedUser);
       showAlert('Profile details saved successfully!', 'success');
+      setProfileEditing(false);
     } catch (err) {
       showAlert(err.message || 'Could not update profile details.');
     } finally {

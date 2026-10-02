@@ -15,9 +15,10 @@
 }
 
 .mobile-nav-list {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: center;
+  gap: 4px;
   list-style: none;
 }
 
@@ -29,7 +30,8 @@
   color: rgba(255, 255, 255, 0.7);
   font-size: 11px;
   font-weight: 600;
-  min-width: 64px;
+  min-width: 0;
+  width: 100%;
   min-height: 44px;
   justify-content: center;
   padding: 4px 6px;
@@ -93,7 +95,42 @@
     padding: 20px;
   }
 
+  .auth-wrapper > *,
+  .auth-register-layout .auth-card {
+    min-width: 0;
+  }
+
+  .feed-layout:has(.home-rail) {
+    display: block;
+  }
+
+  .home-rail {
+    margin-top: 20px;
+  }
+
+  .mobile-nav-link {
+    font-size: 10px;
+  }
+
   .stamp-grid {
     gap: 6px;
+  }
+
+  .profile-details-grid,
+  .profile-contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .mobile-nav {
+    padding-right: 6px;
+    padding-left: 6px;
+  }
+
+  .mobile-nav-link {
+    font-size: 9px;
+    padding-right: 2px;
+    padding-left: 2px;
   }
 }
