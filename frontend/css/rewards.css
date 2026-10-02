@@ -1,70 +1,297 @@
-/* Virtual Reward Card Companion Styling */
+/* Digital attendance card */
+.rewards-page { max-width: 1100px; }
 
-.rewards-container {
-  max-width: 600px;
-  margin: 24px auto;
-  padding: 0 16px;
-}
-
-.virtual-card-wrapper {
-  background: linear-gradient(135deg, var(--primary-navy) 0%, #08386D 100%);
-  color: var(--text-white);
-  border-radius: var(--radius-lg);
-  padding: 28px;
-  box-shadow: var(--shadow-lg);
-  border: 2px solid var(--primary-yellow);
-  position: relative;
-  margin-bottom: 30px;
-}
-
-.virtual-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.virtual-card-chip {
-  width: 42px;
-  height: 30px;
-  background: linear-gradient(135deg, #E2B04A 0%, #FBB112 100%);
-  border-radius: 4px;
-}
-
-.virtual-card-number {
-  font-family: monospace;
-  font-size: 18px;
-  letter-spacing: 2.5px;
-  color: var(--primary-yellow);
+.rewards-heading {
   margin-bottom: 16px;
-  font-weight: 700;
 }
 
-/* 10-Stamp Visual Grid */
-.stamp-grid {
+.rewards-heading h1 {
+  color: var(--primary-navy);
+  font-size: 21px;
+}
+
+.rewards-heading > p:last-child {
+  margin-top: 3px;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.rewards-link-panel {
+  padding: 13px 16px !important;
+  margin-bottom: 14px !important;
+}
+
+.rewards-link-panel h3 {
+  color: var(--primary-navy);
+  font-size: 12px !important;
+}
+
+.rewards-link-panel p { font-size: 10px !important; }
+
+.rewards-link-panel .form-control {
+  min-height: 36px;
+  font-size: 11px;
+}
+
+.rewards-link-panel .btn {
+  min-height: 36px;
+  padding: 7px 12px;
+  font-size: 10px;
+}
+
+.rewards-overview-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  margin: 20px 0;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  align-items: start;
+  gap: 14px;
 }
 
-.stamp-slot {
-  aspect-ratio: 1;
-  border-radius: var(--radius-full);
-  border: 2px dashed rgba(251, 177, 18, 0.4);
+.rewards-side-column {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+}
+
+.reward-progress-card {
+  padding: 14px;
+  border: 1px solid #eadfbf;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fff9e7, #fffdf8);
+}
+
+.reward-progress-title {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.4);
-  background-color: rgba(0, 0, 0, 0.15);
+  gap: 9px;
 }
 
-.stamp-slot.completed {
-  border-style: solid;
-  border-color: var(--primary-yellow);
-  background-color: var(--primary-yellow);
+.progress-trophy {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border-radius: 50%;
+  background: #f6cc56;
+  color: #795300;
+}
+
+.reward-progress-title h2 { color: var(--primary-navy); font-size: 12px; }
+.reward-progress-title p { margin-top: 2px; color: #596c7b; font-size: 9px; }
+.reward-progress-title strong { color: var(--primary-navy); }
+
+.reward-progress-track {
+  height: 7px;
+  overflow: hidden;
+  margin: 12px 0 6px;
+  border-radius: 99px;
+  background: #e2e0d8;
+}
+
+.reward-progress-track span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #fbb112, #e49c08);
+}
+
+.progress-encouragement { color: #536b7d; font-size: 9px; font-weight: 700; }
+
+.progress-next-reward {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 11px;
+  padding-top: 9px;
+  border-top: 1px solid #ece4d0;
+  color: #566c7e;
+  font-size: 9px;
+}
+
+.progress-next-reward > span { color: #c78c05; font-size: 14px; }
+.progress-next-reward strong { margin-left: auto; color: var(--primary-navy); font-size: 13px; }
+
+.virtual-reward-card {
+  position: relative;
+  min-width: 0;
+  min-height: 300px;
+  overflow: hidden;
+  padding: 20px;
+  border: 1px solid rgba(251, 177, 18, 0.55);
+  border-radius: 8px;
+  background: linear-gradient(132deg, #062b52 0%, #0a4778 68%, #0d5780 100%);
+  box-shadow: 0 12px 25px rgba(6, 45, 88, 0.18);
+  color: #fff;
+}
+
+.reward-card-brand,
+.reward-card-header,
+.reward-card-footer,
+.reward-progress-heading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reward-card-brand {
+  justify-content: flex-start;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+}
+
+.reward-card-seal {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border: 2px solid #f7c343;
+  border-radius: 50%;
+  color: #f7c343;
+  font-size: 8px;
+}
+
+.reward-card-decoration {
+  position: absolute;
+  right: -4px;
+  bottom: 36px;
+  color: rgba(255, 255, 255, 0.045);
+  font-size: 138px;
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.reward-card-header {
+  margin-top: 25px;
+  align-items: flex-start;
+}
+
+.reward-card-header h2 {
+  max-width: 100%;
+  color: #fff;
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.reward-card-header > div > span {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 10px;
+}
+
+.reward-qr-button {
+  min-height: 31px;
+  padding: 5px 9px;
+  border-color: rgba(255, 255, 255, 0.23);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.reward-qr-button:hover {
+  background: rgba(255, 255, 255, 0.21);
+  color: #fff;
+}
+
+.qr-icon { font-size: 14px; }
+
+.reward-stamp-progress {
+  position: relative;
+  z-index: 1;
+  margin-top: 26px;
+}
+
+.reward-progress-heading {
+  margin-bottom: 9px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 10px;
+}
+
+.reward-progress-heading span:last-child {
+  color: #ffd05b;
+  font-weight: 800;
+}
+
+.reward-stamp-grid {
+  display: grid !important;
+  grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+}
+
+.reward-stamp-grid > div {
+  display: grid !important;
+  width: 100%;
+  height: auto !important;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50% !important;
+  font-size: 11px !important;
+}
+
+.reward-card-footer {
+  margin-top: 22px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 10px;
+}
+
+.reward-card-footer > div:first-child span,
+.reward-card-id { color: rgba(255, 255, 255, 0.7); }
+
+.reward-card-footer strong {
+  margin-left: 5px;
+  color: #ffd05b;
+  font-size: 13px;
+}
+
+.reward-card-id { font-size: 9px; }
+.reward-card-id span { color: #fff; }
+
+.reward-history-card {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 8px;
+}
+
+.reward-history-card .widget-heading {
+  margin-bottom: 11px;
+}
+
+.reward-history-card .widget-heading h2 {
   color: var(--primary-navy);
-  box-shadow: 0 0 10px rgba(251, 177, 18, 0.5);
+  font-size: 12px;
+}
+
+.reward-history-card .widget-heading > span {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+#historyContainer > div > div {
+  padding: 9px !important;
+  border: 1px solid #e5ebef;
+  background: #f8fafb !important;
+}
+
+#historyContainer > div > div strong { font-size: 10px; }
+#historyContainer > div > div span { font-size: 8px !important; }
+
+@media (max-width: 760px) {
+  .rewards-overview-grid { grid-template-columns: 1fr; }
+  .virtual-reward-card { min-height: 275px; }
+}
+
+@media (max-width: 420px) {
+  .virtual-reward-card { padding: 15px; }
+  .reward-stamp-grid { gap: 5px !important; }
+  .reward-stamp-grid > div { font-size: 9px !important; }
+  .reward-card-header h2 { font-size: 15px; }
+  .reward-card-id { font-size: 8px; }
 }

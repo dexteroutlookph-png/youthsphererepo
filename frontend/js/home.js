@@ -26,6 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const postVideoPreview = document.getElementById('postVideoPreview');
   const removeImageBtn = document.getElementById('removeImageBtn');
   const submitPostBtn = document.getElementById('submitPostBtn');
+  const dashboardUserName = document.getElementById('dashboardUserName');
+  const dashboardAnnouncementHighlight = document.getElementById('dashboardAnnouncementHighlight');
+  const dashboardEventHighlight = document.getElementById('dashboardEventHighlight');
 
   let attachedImageBase64 = null;
 
@@ -34,6 +37,28 @@ document.addEventListener('DOMContentLoaded', () => {
     userComposerAvatar.src = currentUser.avatarUrl;
   }
   composerPlaceholderText.textContent = `What's on your mind, ${currentUser.firstName || 'Youth'}?`;
+  dashboardUserName.textContent = currentUser.firstName || currentUser.username || 'ISIED!';
+
+  const loadDashboardHighlights = async () => {
+    try {
+      const announcements = await api.request('/announcements');
+      if (!Array.isArray(announcements) || announcements.length === 0) return;
+
+      const latest = announcements[0];
+      dashboardAnnouncementHighlight.querySelector('strong').textContent = latest.title || 'District updates';
+      dashboardAnnouncementHighlight.querySelector('p').textContent = latest.content || 'Official news from ISIED.';
+      dashboardAnnouncementHighlight.querySelector('.announcement-thumb').textContent = (latest.category || 'ISIED').slice(0, 4).toUpperCase();
+
+      const event = announcements.find((item) => String(item.category || '').toUpperCase() === 'EVENTS');
+      if (event) {
+        dashboardEventHighlight.querySelector('strong').textContent = event.title || 'District gathering';
+        dashboardEventHighlight.querySelector('p').textContent = event.content || 'See the latest district event update.';
+        dashboardEventHighlight.querySelector('.dashboard-date-mark').textContent = 'EVENT';
+      }
+    } catch (error) {
+      dashboardAnnouncementHighlight.querySelector('p').textContent = 'Visit announcements for the latest district news.';
+    }
+  };
 
   // Handle Logout
   if (logoutBtn) {
@@ -66,6 +91,16 @@ document.addEventListener('DOMContentLoaded', () => {
     postVideoPreview.style.display = 'none';
     postVideoPreview.removeAttribute('src');
   };
+
+  document.getElementById('composerPostShortcut').addEventListener('click', openComposer);
+  document.getElementById('composerPhotoShortcut').addEventListener('click', () => {
+    openComposer();
+    postImageInput.click();
+  });
+  document.getElementById('composerVideoShortcut').addEventListener('click', () => {
+    openComposer();
+    postImageInput.click();
+  });
 
   openComposerTrigger.addEventListener('click', openComposer);
   openComposerTrigger.addEventListener('keydown', (event) => {
@@ -290,4 +325,5 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   loadFeedPosts();
+  loadDashboardHighlights();
 });

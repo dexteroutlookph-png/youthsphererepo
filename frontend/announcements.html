@@ -6,6 +6,7 @@
   <title>District Announcements - YouthSphere | ISIED</title>
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/announcements.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
@@ -29,34 +30,29 @@
     </nav>
   </header>
 
-  <main class="feed-layout">
-    
-    <div style="margin-bottom: 20px;">
-      <h2 style="color: var(--primary-navy); margin-bottom: 4px;">District Announcements</h2>
-      <p style="color: var(--text-secondary); font-size: 14px;">Official updates and event schedules from the ISIED Executive Committee.</p>
-    </div>
-
-    <!-- Category Filter Pills & Search Bar -->
-    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-      <div id="categoryFilters" style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <button class="btn btn-outline filter-pill active" data-category="ALL" style="font-size: 12px; padding: 6px 14px; border-radius: 20px;">All Updates</button>
-        <button class="btn btn-outline filter-pill" data-category="EVENTS" style="font-size: 12px; padding: 6px 14px; border-radius: 20px;">Events</button>
-        <button class="btn btn-outline filter-pill" data-category="MINISTRY" style="font-size: 12px; padding: 6px 14px; border-radius: 20px;">Ministry</button>
-        <button class="btn btn-outline filter-pill" data-category="URGENT" style="font-size: 12px; padding: 6px 14px; border-radius: 20px;">Urgent</button>
+  <main class="feed-layout announcements-page">
+    <header class="announcements-heading">
+      <div>
+        <p class="dashboard-eyebrow">YOUTHSPHERE / ISIED</p>
+        <h1>District Announcements</h1>
+        <p>Official updates and event schedules from the ISIED Executive Committee.</p>
       </div>
+      <label class="announcement-search-wrap" for="announcementSearch">
+        <span aria-hidden="true">⌕</span>
+        <input type="text" id="announcementSearch" class="form-control" placeholder="Search announcements...">
+      </label>
+    </header>
 
-      <input 
-        type="text" 
-        id="announcementSearch" 
-        class="form-control" 
-        placeholder="Search announcements..." 
-        style="max-width: 260px; padding: 8px 12px; font-size: 13px;"
-      >
+    <div class="announcement-toolbar">
+      <div id="categoryFilters" class="announcement-filters" role="group" aria-label="Filter announcements">
+        <button class="btn btn-outline filter-pill active" data-category="ALL">All Updates</button>
+        <button class="btn btn-outline filter-pill" data-category="EVENTS">Events</button>
+        <button class="btn btn-outline filter-pill" data-category="MINISTRY">Ministry</button>
+        <button class="btn btn-outline filter-pill" data-category="URGENT">Urgent</button>
+      </div>
     </div>
-
-    <!-- Announcements Feed Container -->
-    <div id="announcementsContainer">
-      <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+    <div id="announcementsContainer" class="announcements-list">
+      <div class="dashboard-loading">
         Loading district announcements...
       </div>
     </div>

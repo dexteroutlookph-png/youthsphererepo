@@ -73,13 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Build Announcement Card Component
   const createAnnouncementCard = (item) => {
     const card = document.createElement('div');
-    card.className = 'post-card';
-    
-    if (item.is_pinned) {
-      card.style.borderLeft = '4px solid #D97706';
-    }
+    card.className = `post-card announcement-card${item.is_pinned ? ' is-pinned' : ''}`;
 
-    const categoryTag = item.category ? item.category.toUpperCase() : 'GENERAL';
+    const categoryTag = item.category ? String(item.category).toUpperCase() : 'GENERAL';
+    const categoryClass = categoryTag.toLowerCase().replace(/[^a-z0-9_-]/g, '');
     const publishedDate = new Date(item.created_at || Date.now()).toLocaleDateString([], {
       year: 'numeric',
       month: 'short',
@@ -87,27 +84,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const pinnedBadge = item.is_pinned 
-      ? `<span style="background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-right: 6px;">PINNED</span>` 
+      ? '<span class="announcement-pinned">PINNED</span>'
       : '';
 
     card.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-        <div>
-          ${pinnedBadge}
-          <span style="background: #E0F2FE; color: #0369A1; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px;">${categoryTag}</span>
+      <div class="announcement-copy">
+        <div class="announcement-meta">
+          <div>${pinnedBadge}<span class="announcement-category announcement-category--${categoryClass}">${escapeHtml(categoryTag)}</span></div>
+          <time>${publishedDate}</time>
         </div>
-        <span style="font-size: 12px; color: var(--text-muted);">${publishedDate}</span>
+        <h2>${escapeHtml(item.title)}</h2>
+        <p class="announcement-content">${escapeHtml(item.content)}</p>
+        <div class="announcement-byline"><span class="announcement-author-dot">${escapeHtml((item.author_name || 'ISIED').slice(0, 1).toUpperCase())}</span><span>${escapeHtml(item.author_name || 'ISIED Executive Committee')}</span></div>
       </div>
-
-      <h3 style="color: var(--primary-navy); margin-bottom: 8px; font-size: 18px; font-weight: 700;">${escapeHtml(item.title)}</h3>
-      
-      <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; white-space: pre-line;">${escapeHtml(item.content)}</p>
-
-      ${item.media_url ? `<img src="${item.media_url}" style="max-width: 100%; border-radius: var(--radius-md); margin-top: 12px; border: 1px solid var(--border-color);" alt="Announcement Media">` : ''}
-
-      <div style="margin-top: 14px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 10px; display: flex; justify-content: space-between;">
-        <span>Published by <strong>${escapeHtml(item.author_name || 'ISIED Executive Board')}</strong></span>
-      </div>
+      <div class="announcement-art announcement-art--${categoryClass}">${item.media_url ? `<img src="${escapeHtml(item.media_url)}" alt="Announcement media">` : `<span>${escapeHtml(categoryTag)}</span>`}</div>
     `;
 
     return card;

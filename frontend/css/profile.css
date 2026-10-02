@@ -22,21 +22,30 @@
 .profile-header-card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
+  align-items: end;
   gap: 20px;
   position: relative;
   overflow: hidden;
   margin-bottom: 16px;
-  padding: 28px;
+  padding: 80px 24px 16px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: linear-gradient(105deg, #062d58 0%, #0b4778 67%, #eaa719 67.2%, #f7c24a 100%);
+  background: #fff;
   box-shadow: var(--shadow-md);
+}
+
+.profile-header-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 112px;
+  background: linear-gradient(90deg, rgba(4, 30, 59, 0.1), rgba(4, 30, 59, 0.05)), url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=85') center 43% / cover;
+  content: '';
 }
 
 .profile-avatar-wrap {
   position: relative;
   z-index: 1;
+  margin-top: -31px;
 }
 
 .profile-avatar-lg {
@@ -44,7 +53,7 @@
   width: 86px;
   height: 86px;
   object-fit: cover;
-  border: 4px solid rgba(255, 255, 255, 0.92);
+  border: 4px solid #fff;
   border-radius: 50%;
   background: #fff;
 }
@@ -69,7 +78,7 @@
 
 .profile-identity {
   min-width: 0;
-  color: #fff;
+  color: var(--primary-navy);
 }
 
 .profile-identity h3 {
@@ -78,7 +87,7 @@
 }
 
 .profile-identity #profileUsernameTag {
-  color: rgba(255, 255, 255, 0.76);
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -109,7 +118,7 @@
 
 .profile-header-actions {
   z-index: 1;
-  align-self: start;
+  align-self: center;
 }
 
 .profile-content-grid {
@@ -197,9 +206,12 @@
   .profile-header-card {
     grid-template-columns: auto minmax(0, 1fr);
     gap: 14px;
-    padding: 20px;
-    background: linear-gradient(110deg, #062d58 0%, #0b4778 78%, #eaa719 78.2%, #f7c24a 100%);
+    padding: 76px 17px 15px;
   }
+
+  .profile-header-card::before { height: 102px; }
+
+  .profile-avatar-wrap { margin-top: -25px; }
 
   .profile-header-actions {
     grid-column: 1 / -1;

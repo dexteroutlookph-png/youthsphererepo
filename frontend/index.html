@@ -29,40 +29,65 @@
     </nav>
   </header>
 
-  <main class="feed-layout">
-    
-    <!-- Post Composer Card -->
-    <div class="post-composer-card">
-      <div class="composer-trigger-box" id="openComposerTrigger" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="composerModal">
-        <img id="userComposerAvatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24' fill='%23062D58'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" class="post-avatar" alt="Your Avatar" style="width: 36px; height: 36px;">
-        <span class="composer-placeholder" id="composerPlaceholderText">Share something with ISIED Youth...</span>
+  <main class="feed-layout dashboard-page">
+    <header class="dashboard-heading">
+      <div>
+        <p class="dashboard-eyebrow">YOUTHSPHERE / ISIED</p>
+        <h1>Good evening, <span id="dashboardUserName">ISIED!</span></h1>
+        <p class="dashboard-subtitle">Stay connected with your youth community.</p>
       </div>
-    </div>
-
-    <!-- Feed Container -->
-    <div id="feedAlert" class="alert-box" style="display: none; padding: 12px; margin-bottom: 16px; border-radius: 6px; font-size: 13px;"></div>
-    
-    <div id="feedContainer">
-      <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-        Loading district feed posts...
+      <div class="dashboard-quicklinks" aria-label="Quick links">
+        <a class="dashboard-quicklink" href="announcements.html"><span class="quicklink-icon updates-icon">!</span><span><strong>District updates</strong><small>Announcements</small></span></a>
+        <a class="dashboard-quicklink" href="rewards.html"><span class="quicklink-icon card-icon">▣</span><span><strong>Your card</strong><small>Attendance rewards</small></span></a>
+        <a class="dashboard-quicklink" href="notifications.html"><span class="quicklink-icon alerts-icon">•</span><span><strong>Stay in the loop</strong><small>Notifications</small></span></a>
       </div>
-    </div>
+    </header>
 
-    <aside class="home-rail" aria-label="Community highlights">
-      <section class="rail-card">
-        <h3>Welcome, [User Name]!</h3>
-        <p>Connect with your district youth community, discover updates, and celebrate what is happening in your local church.</p>
+    <div class="dashboard-main-column">
+      <section class="post-composer-card">
+        <div class="composer-trigger-box" id="openComposerTrigger" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="composerModal">
+          <img id="userComposerAvatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24' fill='%23062D58'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" class="post-avatar" alt="Your Avatar">
+          <span class="composer-placeholder" id="composerPlaceholderText">What's on your mind?</span>
+        </div>
+        <div class="composer-shortcuts">
+          <button type="button" id="composerPhotoShortcut"><b class="shortcut-photo">▧</b> Photo</button>
+          <button type="button" id="composerVideoShortcut"><b class="shortcut-video">▷</b> Video</button>
+          <button type="button" id="composerPostShortcut"><b class="shortcut-post">✎</b> Post</button>
+          <span class="composer-post-label">Create a post</span>
+        </div>
       </section>
-      <section class="rail-card">
-        <h3>Recent Announcements</h3>
-        <ul class="rail-list">
-          <li><span class="rail-kicker">District update</span>Youth activities and events</li>
-          <li><span class="rail-kicker">Community</span>Share your latest encounter!</li>
-          <li><span class="rail-kicker">Rewards</span>Earn reward points and enjoy exciting prizes!</li>
-        </ul>
+
+      <div id="feedAlert" class="alert-box" style="display: none; padding: 12px; margin-bottom: 16px; border-radius: 6px; font-size: 13px;"></div>
+      <div id="feedContainer" class="dashboard-feed">
+        <div class="dashboard-loading">Loading district feed posts...</div>
+      </div>
+    </div>
+
+    <aside class="dashboard-rail" aria-label="Community highlights">
+      <section class="faith-feature">
+        <div class="faith-feature-copy">
+          <span>FAITH · FELLOWSHIP · SERVICE</span>
+          <h2>Let's grow<br>together.</h2>
+          <a href="announcements.html">Explore the community <span aria-hidden="true">→</span></a>
+        </div>
+      </section>
+
+      <section class="dashboard-widget">
+        <div class="widget-heading"><h2>Upcoming Events</h2><a href="announcements.html">View all</a></div>
+        <div id="dashboardEventHighlight" class="dashboard-highlight">
+          <span class="dashboard-date-mark">ISIED</span>
+          <div><strong>District gatherings</strong><p>Find upcoming events and ministry updates.</p><a href="announcements.html">View updates</a></div>
+        </div>
+      </section>
+
+      <section class="dashboard-widget">
+        <div class="widget-heading"><h2>Latest Announcements</h2><a href="announcements.html">View all</a></div>
+        <div id="dashboardAnnouncementHighlight" class="announcement-highlight">
+          <span class="announcement-thumb" aria-hidden="true">YS</span>
+          <div><strong>District updates</strong><p>Official news from ISIED.</p></div>
+        </div>
       </section>
     </aside>
-
   </main>
 
   <!-- Mobile Bottom Navigation -->

@@ -110,6 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Render Stat Badges
   const renderStats = (stamps, points) => {
     totalPointsDisplay.textContent = `${points} pts`;
+    const stampsTowardReward = stamps % 10;
+    document.getElementById('progressStampSummary').textContent = `${stampsTowardReward} of 10 stamps`;
+    document.getElementById('stampsUntilReward').textContent = String(stampsTowardReward === 0 ? 10 : 10 - stampsTowardReward);
+    document.getElementById('rewardProgressFill').style.width = `${stampsTowardReward * 10}%`;
   };
 
   // Render Attendance History Table/List

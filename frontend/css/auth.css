@@ -1,12 +1,16 @@
 /* YouthSphere Authentication & Registration Styling */
 
 .auth-page-container {
-  min-height: calc(100vh - 68px);
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 36px 24px;
   background-image: radial-gradient(circle at 85% 12%, rgba(251, 177, 18, 0.12), transparent 27%);
+}
+
+body:has(.auth-page-container) .app-header {
+  display: none;
 }
 
 .auth-wrapper {
@@ -25,10 +29,23 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: linear-gradient(155deg, #062d58 0%, #073c70 72%, #0a477e 100%);
+  background-color: #062d58;
+  background-image: linear-gradient(90deg, rgba(4, 30, 59, 0.9), rgba(4, 30, 59, 0.65)), url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1100&q=82');
+  background-position: center;
+  background-size: cover;
   border-radius: 8px 0 0 8px;
   position: relative;
   overflow: hidden;
+}
+
+.auth-brand-logo {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 20px;
+  border: 2px solid var(--primary-yellow);
+  border-radius: 50%;
+  background: var(--primary-yellow);
+  object-fit: contain;
 }
 
 .auth-brand-side::before {
@@ -165,6 +182,40 @@
 
 .auth-register-layout .auth-card {
   border-radius: 0 8px 8px 0;
+  padding: 24px;
+}
+
+.auth-register-layout .form-group {
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.auth-register-layout .form-label { font-size: 11px; }
+
+.auth-register-layout .form-control {
+  min-height: 36px;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.auth-register-layout .cropper-area {
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.auth-register-layout .avatar-preview-circle {
+  width: 72px;
+  height: 72px;
+}
+
+.auth-register-layout form > div[style*="grid-template-columns"] {
+  min-width: 0;
+}
+
+.auth-register-layout form .form-group,
+.auth-register-layout input,
+.auth-register-layout select {
+  min-width: 0;
 }
 
 @media (max-width: 768px) {
@@ -201,5 +252,34 @@
 
   .auth-register-layout .auth-card {
     border-radius: 0 0 8px 8px;
+  }
+
+  .auth-register-layout form > div[style*="grid-template-columns"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-page-container {
+    padding: 16px 12px;
+  }
+
+  .auth-register-layout form > div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .auth-register-layout .auth-brand-side {
+    padding: 25px 22px;
+  }
+
+  .auth-register-layout .auth-brand-side h1 {
+    font-size: 26px;
+  }
+
+  .auth-brand-logo {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 12px;
   }
 }
