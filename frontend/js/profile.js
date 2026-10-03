@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'login.html';
     return;
   }
+  const requestedUserId = Number(new URLSearchParams(window.location.search).get('userId'));
+  const isOwnProfile = !requestedUserId || requestedUserId === Number(currentUser.id);
+  const profileUserId = isOwnProfile ? Number(currentUser.id) : requestedUserId;
 
   // Header & Logout Handles
   const logoutBtn = document.getElementById('logoutBtn');
@@ -28,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const profileBirthdayDisplay = document.getElementById('profileBirthdayDisplay');
   const profileUsernameDisplay = document.getElementById('profileUsernameDisplay');
   const profileBioDisplay = document.getElementById('profileBioDisplay');
+  const profilePostsContainer = document.getElementById('profilePosts');
+  const profilePostsHeading = document.getElementById('profilePostsHeading');
 
   // Profile Edit Form Elements
   const profileDetailsForm = document.getElementById('profileDetailsForm');
@@ -45,6 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const newPassword = document.getElementById('newPassword');
   const confirmNewPassword = document.getElementById('confirmNewPassword');
   const changePasswordBtn = document.getElementById('changePasswordBtn');
+
+  if (!isOwnProfile) {
+    editProfileBtn.hidden = true;
+    changeAvatarBtn.hidden = true;
+    profileEditPanel.hidden = true;
+    document.querySelector('.profile-page-heading h2').textContent = 'Member Profile';
+  }
 
   // Logout Event
   if (logoutBtn) {
@@ -79,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     profileEmailDisplay.textContent = user.email || 'Not provided';
     profileUsernameDisplay.textContent = user.username ? `@${user.username}` : 'Not provided';
     profileBioDisplay.textContent = user.bio || 'Add a short introduction or favorite verse to tell your community a little about you.';
+    profilePostsHeading.textContent = isOwnProfile ? 'Your Posts' : `@${user.username || 'member'}'s Posts`;
     
     if (user.avatarUrl) {
       profileAvatarDisplay.src = user.avatarUrl;
@@ -104,6 +117,104 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+  })[character]);
+
+  const renderProfilePost = (post) => {
+    const card = document.createElement('article');
+    card.className = 'post-card profile-post-card';
+    const authorName = `${post.first_name || ''} ${post.last_name || ''}`.trim() || post.username || 'YouthSphere member';
+    const authorId = Number(post.author_id);
+    const authorLink = Number.isInteger(authorId) && authorId > 0 ? `profile.html?userId=${authorId}` : 'profile.html';
+    const media = post.media_url
+      ? post.media_type === 'video'
+        ? `<video class="post-media-attachment" src="${escapeHtml(post.media_url)}" controls preload="metadata"></video>`
+        : `<img class="post-media-attachment" src="${escapeHtml(post.media_url)}" alt="Post attachment">`
+      : '';
+    const ownerActions = isOwnProfile
+      ? `<div class="profile-post-actions"><button type="button" class="btn btn-outline edit-profile-post" data-post-id="${Number(post.id)}">Edit</button><button type="button" class="btn btn-outline delete-profile-post" data-post-id="${Number(post.id)}">Delete</button></div>`
+      : '';
+
+    card.innerHTML = `
+      <div class="post-header">
+        <img class="post-avatar" src="${escapeHtml(post.author_avatar || '../logo.png')}" alt="${escapeHtml(authorName)}">
+        <div class="post-author-info">
+          <strong class="post-author-name">${escapeHtml(authorName)}</strong>
+          <a class="post-username-link" href="${authorLink}">@${escapeHtml(post.username || 'member')}</a>
+          <span class="post-meta-sub">${new Date(post.created_at || Date.now()).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+        </div>
+        ${ownerActions}
+      </div>
+      <p class="post-content-text">${escapeHtml(post.content)}</p>
+      ${media}
+      <form class="profile-post-editor" hidden>
+        <label class="sr-only" for="profile-post-edit-${Number(post.id)}">Edit post text</label>
+        <textarea id="profile-post-edit-${Number(post.id)}" class="form-control profile-post-edit-input" maxlength="10000" required>${escapeHtml(post.content)}</textarea>
+        <div class="profile-post-editor-actions">
+          <button type="submit" class="btn btn-primary save-profile-post">Save changes</button>
+          <button type="button" class="btn btn-outline cancel-profile-post-edit">Cancel</button>
+        </div>
+      </form>
+    `;
+
+    if (isOwnProfile) {
+      const editButton = card.querySelector('.edit-profile-post');
+      const editor = card.querySelector('.profile-post-editor');
+      const editInput = card.querySelector('.profile-post-edit-input');
+      editButton.addEventListener('click', () => {
+        editor.hidden = false;
+        editButton.hidden = true;
+        editInput.focus();
+      });
+      card.querySelector('.cancel-profile-post-edit').addEventListener('click', () => {
+        editInput.value = post.content || '';
+        editor.hidden = true;
+        editButton.hidden = false;
+      });
+      editor.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const content = editInput.value.trim();
+        if (!content) return;
+        const saveButton = card.querySelector('.save-profile-post');
+        saveButton.disabled = true;
+        try {
+          await api.request(`/posts/${post.id}`, { method: 'PUT', body: JSON.stringify({ content }) });
+          await loadProfilePosts();
+        } catch (error) {
+          showAlert(error.message || 'Unable to update post.');
+        } finally {
+          saveButton.disabled = false;
+        }
+      });
+      card.querySelector('.delete-profile-post').addEventListener('click', async (event) => {
+        if (!window.confirm('Delete this post? This cannot be undone.')) return;
+        try {
+          await api.request(`/posts/${event.currentTarget.dataset.postId}`, { method: 'DELETE' });
+          await loadProfilePosts();
+        } catch (error) {
+          showAlert(error.message || 'Unable to delete post.');
+        }
+      });
+    }
+
+    return card;
+  };
+
+  const loadProfilePosts = async () => {
+    try {
+      const posts = await api.request(`/posts/by-user/${profileUserId}`);
+      profilePostsContainer.replaceChildren();
+      if (!posts.length) {
+        profilePostsContainer.innerHTML = '<p class="profile-posts-empty">No posts yet.</p>';
+        return;
+      }
+      posts.forEach((post) => profilePostsContainer.appendChild(renderProfilePost(post)));
+    } catch (error) {
+      profilePostsContainer.innerHTML = '<p class="profile-posts-empty">Unable to load posts right now.</p>';
+    }
+  };
+
   const setProfileEditing = (isEditing) => {
     profileEditPanel.hidden = !isEditing;
     editProfileBtn.hidden = isEditing;
@@ -118,16 +229,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Fetch Latest Profile Data from Backend
-  const loadLatestProfile = async () => {
+  const loadProfile = async () => {
     try {
-      const user = await api.request('/users/me');
+      const user = isOwnProfile
+        ? await api.request('/users/me')
+        : await api.request(`/users/public/${profileUserId}`);
       populateProfileData(user);
-      // Sync local storage session
-      localStorage.setItem('youthsphere_user', JSON.stringify(user));
+      if (isOwnProfile) localStorage.setItem('youthsphere_user', JSON.stringify(user));
     } catch (err) {
-      // Fallback to local session state if request fails
-      populateProfileData(currentUser);
+      if (isOwnProfile) populateProfileData(currentUser);
+      else showAlert(err.message || 'Unable to load this profile.');
     }
+    await loadProfilePosts();
   };
 
   // Profile Avatar Upload Handler
@@ -244,5 +357,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  loadLatestProfile();
+  loadProfile();
 });

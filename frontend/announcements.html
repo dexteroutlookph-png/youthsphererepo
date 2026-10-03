@@ -37,10 +37,13 @@
         <h1>District Announcements</h1>
         <p>Official updates and event schedules from the ISIED Executive Committee.</p>
       </div>
-      <label class="announcement-search-wrap" for="announcementSearch">
-        <span aria-hidden="true">⌕</span>
-        <input type="text" id="announcementSearch" class="form-control" placeholder="Search announcements...">
-      </label>
+      <div class="announcement-header-actions">
+        <label class="announcement-search-wrap" for="announcementSearch">
+          <span aria-hidden="true">⌕</span>
+          <input type="text" id="announcementSearch" class="form-control" placeholder="Search announcements...">
+        </label>
+        <button type="button" id="createAnnouncementBtn" class="btn btn-primary" hidden>Post announcement</button>
+      </div>
     </header>
 
     <div class="announcement-toolbar">
@@ -56,8 +59,49 @@
         Loading district announcements...
       </div>
     </div>
+    <div id="announcementAdminAlert" role="status" aria-live="polite" hidden></div>
 
   </main>
+
+  <div id="announcementComposerModal" class="modal-overlay">
+    <section class="modal-card announcement-composer-card" role="dialog" aria-modal="true" aria-labelledby="announcementComposerTitle">
+      <div class="modal-header">
+        <h2 class="modal-title" id="announcementComposerTitle">Create Announcement</h2>
+        <button type="button" id="closeAnnouncementComposer" class="icon-close" aria-label="Close announcement form">&times;</button>
+      </div>
+      <form id="announcementForm">
+        <div class="modal-body">
+          <div id="announcementFormAlert" role="status" aria-live="polite" hidden></div>
+          <div class="form-group">
+            <label for="announcementTitle" class="form-label">Title</label>
+            <input id="announcementTitle" class="form-control" maxlength="255" required>
+          </div>
+          <div class="form-group">
+            <label for="announcementCategory" class="form-label">Category</label>
+            <select id="announcementCategory" class="form-control">
+              <option value="GENERAL">General</option>
+              <option value="EVENTS">Events</option>
+              <option value="MINISTRY">Ministry</option>
+              <option value="URGENT">Urgent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="announcementContent" class="form-label">Announcement</label>
+            <textarea id="announcementContent" class="form-control" rows="5" maxlength="10000" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="announcementImage" class="form-label">Cover image</label>
+            <input id="announcementImage" class="form-control" type="file" accept="image/*">
+          </div>
+          <label class="announcement-pin-option"><input id="announcementPinned" type="checkbox"> Pin this announcement</label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancelAnnouncementComposer" class="btn btn-outline">Cancel</button>
+          <button type="submit" id="publishAnnouncementBtn" class="btn btn-primary">Publish</button>
+        </div>
+      </form>
+    </section>
+  </div>
 
   <!-- Mobile Bottom Navigation -->
   <nav class="mobile-nav">

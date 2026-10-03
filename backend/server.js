@@ -6,6 +6,7 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const db = require('./database/connection');
+const { hasMailConfiguration } = require('./utils/mail');
 const app = express();
 const PORT = Number(process.env.PORT || 5001);
 const frontendRoot = path.resolve(__dirname, '../frontend');
@@ -54,7 +55,8 @@ app.get('/api/health', async (req, res) => {
       process.env.CLOUDINARY_CLOUD_NAME &&
       process.env.CLOUDINARY_API_KEY &&
       process.env.CLOUDINARY_API_SECRET
-    )
+    ),
+    passwordResetEmail: hasMailConfiguration()
   };
 
   if (!configuration.database || !configuration.jwt) {
@@ -71,6 +73,7 @@ app.get('/api/health', async (req, res) => {
       status: 'ok',
       message: 'YouthSphere API is online',
       db: 'connected',
+      configuration,
       timestamp: result.rows[0].current_time
     });
   } catch (error) {

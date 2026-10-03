@@ -10,10 +10,11 @@ const hasMailConfiguration = () => Boolean(
 const sendPasswordResetEmail = async ({ recipient, token }) => {
   if (!hasMailConfiguration()) return false;
 
+  const port = Number(process.env.SMTP_PORT || 587);
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === 'true',
+    port,
+    secure: process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : port === 465,
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD }
   });
   const frontendUrl = (process.env.FRONTEND_URL || process.env.CLIENT_URL || '').replace(/\/$/, '');

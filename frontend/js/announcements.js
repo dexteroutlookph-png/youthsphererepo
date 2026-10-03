@@ -12,9 +12,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const announcementsContainer = document.getElementById('announcementsContainer');
   const announcementSearch = document.getElementById('announcementSearch');
   const filterPills = document.querySelectorAll('.filter-pill');
+  const createAnnouncementBtn = document.getElementById('createAnnouncementBtn');
+  const announcementComposerModal = document.getElementById('announcementComposerModal');
+  const announcementForm = document.getElementById('announcementForm');
+  const publishAnnouncementBtn = document.getElementById('publishAnnouncementBtn');
+  const announcementFormAlert = document.getElementById('announcementFormAlert');
+  const announcementAdminAlert = document.getElementById('announcementAdminAlert');
 
   let rawAnnouncements = [];
   let activeCategory = 'ALL';
+
+  if (String(currentUser.role || '').toLowerCase() === 'admin') {
+    createAnnouncementBtn.hidden = false;
+  }
 
   // Logout Handler
   if (logoutBtn) {
@@ -23,6 +33,72 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = 'login.html';
     });
   }
+
+  const closeAnnouncementComposer = () => {
+    announcementComposerModal.classList.remove('active');
+    announcementForm.reset();
+    announcementFormAlert.hidden = true;
+    announcementFormAlert.textContent = '';
+  };
+
+  createAnnouncementBtn.addEventListener('click', () => announcementComposerModal.classList.add('active'));
+  document.getElementById('closeAnnouncementComposer').addEventListener('click', closeAnnouncementComposer);
+  document.getElementById('cancelAnnouncementComposer').addEventListener('click', closeAnnouncementComposer);
+
+  announcementForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const imageFile = document.getElementById('announcementImage').files[0];
+    let mediaBase64 = null;
+
+    if (imageFile) {
+      if (!imageFile.type.startsWith('image/') || imageFile.size > 20 * 1024 * 1024) {
+        announcementFormAlert.textContent = 'Choose an image smaller than 20 MB.';
+        announcementFormAlert.hidden = false;
+        return;
+      }
+      try {
+        mediaBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error('Unable to read the selected image.'));
+          reader.readAsDataURL(imageFile);
+        });
+      } catch (error) {
+        announcementFormAlert.textContent = error.message;
+        announcementFormAlert.hidden = false;
+        return;
+      }
+    }
+
+    publishAnnouncementBtn.disabled = true;
+    publishAnnouncementBtn.textContent = 'Publishing...';
+    try {
+      const announcement = await api.request('/announcements', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: document.getElementById('announcementTitle').value.trim(),
+          content: document.getElementById('announcementContent').value.trim(),
+          category: document.getElementById('announcementCategory').value,
+          isPinned: document.getElementById('announcementPinned').checked,
+          mediaBase64
+        })
+      });
+      rawAnnouncements.unshift(announcement);
+      announcementSearch.value = '';
+      activeCategory = 'ALL';
+      filterPills.forEach((pill) => pill.classList.toggle('active', pill.dataset.category === 'ALL'));
+      renderAnnouncements();
+      closeAnnouncementComposer();
+      announcementAdminAlert.textContent = 'Announcement published.';
+      announcementAdminAlert.hidden = false;
+    } catch (error) {
+      announcementFormAlert.textContent = error.message || 'Unable to publish announcement.';
+      announcementFormAlert.hidden = false;
+    } finally {
+      publishAnnouncementBtn.disabled = false;
+      publishAnnouncementBtn.textContent = 'Publish';
+    }
+  });
 
   // Fetch Announcements from API
   const loadAnnouncements = async () => {

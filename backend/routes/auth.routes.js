@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const { createSession, revokeSession, hashToken } = require('../utils/sessions');
-const { sendPasswordResetEmail } = require('../utils/mail');
+const { hasMailConfiguration, sendPasswordResetEmail } = require('../utils/mail');
 
 const router = express.Router();
 
@@ -234,18 +234,26 @@ router.post('/forgot-password', resetLimiter, async (req, res) => {
     const result = await db.query('SELECT id FROM users WHERE LOWER(email) = $1 LIMIT 1', [email]);
     if (result.rows.length === 0) return res.json(genericResponse);
 
+    if (!hasMailConfiguration()) {
+      console.error('Password reset delivery unavailable: SMTP mail configuration is missing.');
+      return res.json(genericResponse);
+    }
+
     const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = hashToken(rawToken);
     await db.query('DELETE FROM password_reset_tokens WHERE user_id = $1 OR expires_at < CURRENT_TIMESTAMP', [result.rows[0].id]);
     await db.query(
       `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
        VALUES ($1, $2, CURRENT_TIMESTAMP + INTERVAL '1 hour')`,
-      [result.rows[0].id, hashToken(rawToken)]
+      [result.rows[0].id, tokenHash]
     );
 
     try {
-      await sendPasswordResetEmail({ recipient: email, token: rawToken });
+      const sent = await sendPasswordResetEmail({ recipient: email, token: rawToken });
+      if (!sent) throw new Error('SMTP mail is not configured.');
     } catch (mailError) {
       console.error('Password reset delivery failed:', mailError.message);
+      await db.query('DELETE FROM password_reset_tokens WHERE token_hash = $1', [tokenHash]);
     }
     return res.json(genericResponse);
   } catch (error) {

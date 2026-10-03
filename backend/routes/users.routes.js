@@ -56,6 +56,29 @@ router.get('/profile', requireAuth, async (req, res) => {
   }
 });
 
+router.get('/public/:userId', requireAuth, async (req, res) => {
+  const userId = Number(req.params.userId);
+  if (!Number.isInteger(userId) || userId < 1) return res.status(400).json({ message: 'Invalid user id.' });
+  try {
+    const user = await loadUser(userId);
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+    return res.json({
+      id: user.id,
+      firstName: user.first_name,
+      middleName: user.middle_name,
+      lastName: user.last_name,
+      username: user.username,
+      bio: user.bio,
+      clusterName: user.cluster_name,
+      churchName: user.church_name,
+      avatarUrl: user.profile_photo_url || null
+    });
+  } catch (error) {
+    console.error('Load public profile error:', error);
+    return res.status(500).json({ message: 'Unable to load this profile.' });
+  }
+});
+
 router.put('/profile', requireAuth, async (req, res) => {
   const { firstName, middleName, lastName, email, bio } = req.body || {};
 

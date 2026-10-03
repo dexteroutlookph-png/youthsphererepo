@@ -8,7 +8,7 @@ const router = express.Router();
 
 const postQuery = `
   SELECT p.id, p.author_id, p.content, p.media_url, p.media_type, p.created_at,
-    u.first_name, u.last_name, u.profile_photo_url AS author_avatar,
+    u.first_name, u.last_name, u.username, u.profile_photo_url AS author_avatar,
     c.name AS cluster_name, lc.name AS church_name,
     COUNT(DISTINCT r.id)::int AS like_count,
     COUNT(DISTINCT cmt.id)::int AS comment_count,
@@ -21,13 +21,14 @@ const postQuery = `
   LEFT JOIN reactions r ON r.post_id = p.id AND r.type = 'like'
   LEFT JOIN comments cmt ON cmt.post_id = p.id
   LEFT JOIN post_shares s ON s.post_id = p.id
+  WHERE ($2::integer IS NULL OR p.author_id = $2)
   GROUP BY p.id, u.id, c.name, lc.name
   ORDER BY p.created_at DESC
   LIMIT 100`;
 
 const legacyPostQuery = `
   SELECT p.id, p.author_id, p.content, p.media_url, p.media_type, p.created_at,
-    u.first_name, u.last_name, u.profile_photo_url AS author_avatar,
+    u.first_name, u.last_name, u.username, u.profile_photo_url AS author_avatar,
     c.name AS cluster_name, lc.name AS church_name,
     COUNT(DISTINCT r.id)::int AS like_count,
     COUNT(DISTINCT cmt.id)::int AS comment_count,
@@ -39,17 +40,18 @@ const legacyPostQuery = `
   LEFT JOIN local_churches lc ON lc.id = u.church_id
   LEFT JOIN reactions r ON r.post_id = p.id AND r.type = 'like'
   LEFT JOIN comments cmt ON cmt.post_id = p.id
+  WHERE ($2::integer IS NULL OR p.author_id = $2)
   GROUP BY p.id, u.id, c.name, lc.name
   ORDER BY p.created_at DESC
   LIMIT 100`;
 
-const loadPosts = async (userId) => {
+const loadPosts = async (userId, authorId = null) => {
   try {
-    return await db.query(postQuery, [userId]);
+    return await db.query(postQuery, [userId, authorId]);
   } catch (error) {
     if (!['42P01', '42703'].includes(error.code)) throw error;
     console.warn('Optional post sharing schema is not applied yet; using compatibility feed query.');
-    return db.query(legacyPostQuery, [userId]);
+    return db.query(legacyPostQuery, [userId, authorId]);
   }
 };
 
@@ -60,6 +62,18 @@ router.get('/', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Load posts error:', error);
     return res.status(500).json({ message: 'Unable to load posts.' });
+  }
+});
+
+router.get('/by-user/:userId', requireAuth, async (req, res) => {
+  const authorId = Number(req.params.userId);
+  if (!Number.isInteger(authorId) || authorId < 1) return res.status(400).json({ message: 'Invalid user id.' });
+  try {
+    const result = await loadPosts(req.user.userId, authorId);
+    return res.json(result.rows);
+  } catch (error) {
+    console.error('Load profile posts error:', error);
+    return res.status(500).json({ message: 'Unable to load this profile’s posts.' });
   }
 });
 
@@ -88,6 +102,43 @@ router.post('/', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Create post error:', error);
     return res.status(500).json({ message: error.message || 'Unable to publish post.' });
+  }
+});
+
+router.put('/:postId', requireAuth, async (req, res) => {
+  const postId = Number(req.params.postId);
+  const content = typeof req.body?.content === 'string' ? req.body.content.trim() : '';
+  if (!Number.isInteger(postId) || !content || content.length > 10000) {
+    return res.status(400).json({ message: 'A valid post and non-empty content of at most 10,000 characters are required.' });
+  }
+
+  try {
+    const result = await db.query(
+      `UPDATE posts SET content = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2 AND author_id = $3 RETURNING id, content, media_url, media_type, created_at, updated_at`,
+      [content, postId, req.user.userId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ message: 'Post not found or not owned by you.' });
+    return res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Update post error:', error);
+    return res.status(500).json({ message: 'Unable to update post.' });
+  }
+});
+
+router.delete('/:postId', requireAuth, async (req, res) => {
+  const postId = Number(req.params.postId);
+  if (!Number.isInteger(postId) || postId < 1) return res.status(400).json({ message: 'Invalid post id.' });
+  try {
+    const result = await db.query(
+      'DELETE FROM posts WHERE id = $1 AND author_id = $2 RETURNING id',
+      [postId, req.user.userId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ message: 'Post not found or not owned by you.' });
+    return res.json({ message: 'Post deleted.' });
+  } catch (error) {
+    console.error('Delete post error:', error);
+    return res.status(500).json({ message: 'Unable to delete post.' });
   }
 });
 
@@ -136,7 +187,7 @@ router.get('/:postId/comments', requireAuth, async (req, res) => {
   try {
     const result = await db.query(
       `SELECT c.id, c.content, c.created_at, c.updated_at, c.author_id,
-        u.first_name, u.last_name, u.profile_photo_url AS author_avatar
+        u.first_name, u.last_name, u.username, u.profile_photo_url AS author_avatar
        FROM comments c JOIN users u ON u.id = c.author_id
        WHERE c.post_id = $1 ORDER BY c.created_at ASC LIMIT 200`, [postId]
     );

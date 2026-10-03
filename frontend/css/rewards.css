@@ -114,15 +114,19 @@
 .virtual-reward-card {
   position: relative;
   min-width: 0;
-  min-height: 300px;
+  min-height: 0;
+  aspect-ratio: 1234 / 747;
   overflow: hidden;
-  padding: 20px;
-  border: 1px solid rgba(251, 177, 18, 0.55);
-  border-radius: 8px;
-  background: linear-gradient(132deg, #062b52 0%, #0a4778 68%, #0d5780 100%);
-  box-shadow: 0 12px 25px rgba(6, 45, 88, 0.18);
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: url('../carddesign.png') center / 100% 100% no-repeat;
+  box-shadow: 0 8px 20px rgba(6, 45, 88, 0.16);
   color: #fff;
 }
+
+.virtual-reward-card .reward-card-brand,
+.virtual-reward-card .reward-card-decoration { display: none; }
 
 .reward-card-brand,
 .reward-card-header,
@@ -167,31 +171,40 @@
 }
 
 .reward-card-header {
-  margin-top: 25px;
-  align-items: flex-start;
+  position: absolute;
+  top: 10.5%;
+  left: 37%;
+  right: 8%;
+  margin: 0;
+  align-items: center;
 }
+
+.reward-card-header > div { width: 64%; }
 
 .reward-card-header h2 {
   max-width: 100%;
-  color: #fff;
-  font-size: 18px;
+  color: #382a1f;
+  font-size: clamp(10px, 1.3vw, 16px);
+  text-align: center;
   overflow-wrap: anywhere;
 }
 
 .reward-card-header > div > span {
   display: block;
-  margin-top: 3px;
-  color: rgba(255, 255, 255, 0.76);
-  font-size: 10px;
+  display: none;
 }
 
 .reward-qr-button {
-  min-height: 31px;
-  padding: 5px 9px;
-  border-color: rgba(255, 255, 255, 0.23);
-  background: rgba(255, 255, 255, 0.12);
+  position: absolute;
+  top: 2%;
+  right: 1.5%;
+  width: 25px;
+  min-height: 25px;
+  padding: 3px;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(6, 45, 88, 0.78);
   color: #fff;
-  font-size: 10px;
+  font-size: 0;
   white-space: nowrap;
 }
 
@@ -203,47 +216,69 @@
 .qr-icon { font-size: 14px; }
 
 .reward-stamp-progress {
-  position: relative;
-  z-index: 1;
-  margin-top: 26px;
+  position: absolute;
+  inset: 40% 8% 16% 40%;
+  margin: 0;
 }
 
 .reward-progress-heading {
-  margin-bottom: 9px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  justify-content: flex-end;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(8px, 1vw, 11px);
 }
 
+.reward-progress-heading span:first-child { display: none; }
+
 .reward-progress-heading span:last-child {
-  color: #ffd05b;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: rgba(6, 45, 88, 0.72);
+  color: #fff;
   font-weight: 800;
 }
 
 .reward-stamp-grid {
   display: grid !important;
-  grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
-  gap: 7px !important;
+  position: absolute;
+  inset: 20% 0 0;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 2% 3% !important;
 }
 
 .reward-stamp-grid > div {
   display: grid !important;
-  width: 100%;
+  width: 78%;
   height: auto !important;
   aspect-ratio: 1;
+  align-self: center;
+  justify-self: center;
   place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.75);
   border-radius: 50% !important;
-  font-size: 11px !important;
+  font-size: clamp(7px, 0.9vw, 10px) !important;
 }
 
 .reward-card-footer {
-  margin-top: 22px;
-  padding-top: 11px;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-  font-size: 10px;
+  position: absolute;
+  top: 10.5%;
+  right: 8%;
+  width: 18%;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #382a1f;
+  font-size: clamp(8px, 1vw, 11px);
 }
 
-.reward-card-footer > div:first-child span,
-.reward-card-id { color: rgba(255, 255, 255, 0.7); }
+.reward-card-footer > div:first-child { display: none; }
+.reward-card-id { color: #382a1f; font-size: inherit; }
 
 .reward-card-footer strong {
   margin-left: 5px;
@@ -251,8 +286,7 @@
   font-size: 13px;
 }
 
-.reward-card-id { font-size: 9px; }
-.reward-card-id span { color: #fff; }
+.reward-card-id span { color: #382a1f; font-size: clamp(8px, 0.95vw, 11px); font-weight: 700; }
 
 .reward-history-card {
   min-width: 0;
@@ -285,13 +319,9 @@
 
 @media (max-width: 760px) {
   .rewards-overview-grid { grid-template-columns: 1fr; }
-  .virtual-reward-card { min-height: 275px; }
+  .virtual-reward-card { min-height: 0; }
 }
 
 @media (max-width: 420px) {
-  .virtual-reward-card { padding: 15px; }
-  .reward-stamp-grid { gap: 5px !important; }
-  .reward-stamp-grid > div { font-size: 9px !important; }
-  .reward-card-header h2 { font-size: 15px; }
-  .reward-card-id { font-size: 8px; }
+  .reward-card-header h2 { font-size: 9px; }
 }

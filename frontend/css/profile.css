@@ -38,7 +38,7 @@
   position: absolute;
   inset: 0 0 auto;
   height: 112px;
-  background: linear-gradient(90deg, rgba(4, 30, 59, 0.1), rgba(4, 30, 59, 0.05)), url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=85') center 43% / cover;
+  background: linear-gradient(90deg, rgba(4, 30, 59, 0.08), rgba(4, 30, 59, 0.02)), url('../coverphoto.jpg') center 45% / cover;
   content: '';
 }
 
@@ -125,6 +125,90 @@
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.8fr);
   gap: 16px;
+}
+
+.profile-posts-section {
+  margin-top: 16px;
+}
+
+.profile-posts-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.profile-posts-heading h3 {
+  color: var(--primary-navy);
+  font-size: 15px;
+}
+
+.profile-posts-heading span,
+.profile-posts-empty {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.profile-post-card {
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.profile-post-card .post-header {
+  margin-bottom: 9px;
+}
+
+.profile-post-card .post-username-link {
+  color: #42739a;
+  font-size: 10px;
+}
+
+.profile-post-card .post-content-text {
+  font-size: 12px;
+}
+
+.profile-post-actions {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.profile-post-actions .btn {
+  min-height: 28px;
+  padding: 4px 8px;
+  font-size: 10px;
+}
+
+.profile-post-editor:not([hidden]) {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.profile-post-edit-input {
+  min-height: 86px;
+  font-size: 12px;
+}
+
+.profile-post-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.profile-post-editor-actions .btn {
+  min-height: 31px;
+  padding: 6px 10px;
+  font-size: 10px;
+}
+
+.profile-posts-empty {
+  padding: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: #fff;
+  text-align: center;
 }
 
 .profile-section-card {

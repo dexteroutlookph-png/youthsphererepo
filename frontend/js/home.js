@@ -187,6 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const avatarSrc = post.author_avatar || defaultAvatar;
     const authorName = `${post.first_name || 'Youth'} ${post.last_name || ''}`.trim();
     const churchInfo = post.church_name ? `${post.church_name} (${post.cluster_name || 'ISIED'})` : 'ISIED District Youth';
+    const profileUrl = `profile.html?userId=${encodeURIComponent(post.author_id)}`;
     const postTime = new Date(post.created_at || Date.now()).toLocaleString([], {
       dateStyle: 'medium',
       timeStyle: 'short'
@@ -201,10 +202,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     card.innerHTML = `
       <div class="post-header">
-        <img src="${avatarSrc}" class="post-avatar" alt="${authorName}">
+        <a class="post-author-avatar-link" href="${profileUrl}" aria-label="View ${escapeHtml(authorName)} profile">
+          <img src="${escapeHtml(avatarSrc)}" class="post-avatar" alt="">
+        </a>
         <div class="post-author-info">
-          <span class="post-author-name">${authorName}</span>
-          <span class="post-meta-sub">${churchInfo} • ${postTime}</span>
+          <a class="post-author-name" href="${profileUrl}">${escapeHtml(authorName)}</a>
+          <a class="post-username-link" href="${profileUrl}">@${escapeHtml(post.username || 'member')}</a>
+          <span class="post-meta-sub">${escapeHtml(churchInfo)} • ${postTime}</span>
         </div>
       </div>
       <div class="post-content-text">${escapeHtml(post.content)}</div>
@@ -213,11 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" class="action-btn ${post.user_liked ? 'active-like' : ''}" data-post-id="${post.id}">
           ♥ <span class="like-count">${post.like_count || 0}</span> Likes
         </button>
+        <button type="button" class="action-btn comments-toggle" aria-expanded="false">◯ <span class="comment-count">${post.comment_count || 0}</span> Comments</button>
         <button type="button" class="action-btn share-btn"><span class="share-count">${post.share_count || 0}</span> Share</button>
         <button type="button" class="action-btn report-btn">Report</button>
       </div>
       <div class="comments-section" style="margin-top:12px; border-top:1px solid var(--border-color); padding-top:10px;">
-        <button type="button" class="action-btn comments-toggle">${post.comment_count || 0} Comments</button>
         <div class="comments-list" hidden></div>
         <form class="comment-form" hidden style="display:flex; gap:8px; margin-top:8px;">
           <label class="sr-only" for="comment-${post.id}">Add a comment</label>
@@ -243,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
     commentsToggle.addEventListener('click', async () => {
       commentsList.hidden = false; commentForm.hidden = false; commentsList.textContent = 'Loading comments...';
       try {
-        const comments = await api.request(`/posts/${post.id}/comments`); commentsList.innerHTML = comments.length ? comments.map((comment) => `<p style="font-size:13px; margin:8px 0;"><strong>${escapeHtml(`${comment.first_name} ${comment.last_name}`)}</strong> ${escapeHtml(comment.content)} ${Number(comment.author_id) === Number(currentUser.id) ? `<button type="button" class="edit-comment action-btn" data-id="${comment.id}" data-content="${escapeHtml(comment.content)}">Edit</button><button type="button" class="delete-comment action-btn" data-id="${comment.id}">Delete</button>` : ''}</p>`).join('') : '<p style="font-size:13px; color:var(--text-muted);">No comments yet. Be the first to comment.</p>';
+        const comments = await api.request(`/posts/${post.id}/comments`); commentsList.innerHTML = comments.length ? comments.map((comment) => `<p style="font-size:13px; margin:8px 0;"><a class="comment-author-link" href="profile.html?userId=${encodeURIComponent(comment.author_id)}"><strong>${escapeHtml(`${comment.first_name} ${comment.last_name}`)}</strong></a> ${escapeHtml(comment.content)} ${Number(comment.author_id) === Number(currentUser.id) ? `<button type="button" class="edit-comment action-btn" data-id="${comment.id}" data-content="${escapeHtml(comment.content)}">Edit</button><button type="button" class="delete-comment action-btn" data-id="${comment.id}">Delete</button>` : ''}</p>`).join('') : '<p style="font-size:13px; color:var(--text-muted);">No comments yet. Be the first to comment.</p>';
         commentsList.querySelectorAll('.edit-comment').forEach((button) => button.addEventListener('click', async () => { const content = window.prompt('Edit comment:', button.dataset.content); if (content && content.trim()) { await api.request(`/posts/comments/${button.dataset.id}`, { method: 'PUT', body: JSON.stringify({ content: content.trim() }) }); commentsToggle.click(); } }));
         commentsList.querySelectorAll('.delete-comment').forEach((button) => button.addEventListener('click', async () => { if (window.confirm('Delete this comment?')) { await api.request(`/posts/comments/${button.dataset.id}`, { method: 'DELETE' }); commentsToggle.click(); } }));
       } catch (error) { commentsList.textContent = error.message || 'Unable to load comments.'; }
